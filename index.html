@@ -1,0 +1,421 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no">
+<title>西藏经典行程路线 · 全线路地图导览</title>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+<style>
+:root{--bg-primary:#F5F5F7;--bg-surface:#FFFFFF;--bg-glass:rgba(255,255,255,0.75);--text-primary:#1D1D1F;--text-secondary:#86868B;--color-primary:#0066CC;--color-gold:#D4AF37;--color-red:#E63946;--color-teal:#2A9D8F;--radius:20px;--shadow:0 4px 30px rgba(0,0,0,0.08)}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","SF Pro Text","Helvetica Neue",Arial,sans-serif;background:var(--bg-primary);color:var(--text-primary);-webkit-font-smoothing:antialiased;overflow-x:hidden}
+.nav{position:fixed;top:0;left:0;right:0;z-index:1000;background:var(--bg-glass);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-bottom:1px solid rgba(0,0,0,0.08);padding:0 16px;height:56px;display:flex;align-items:center;gap:8px}
+.nav-brand{font-size:16px;font-weight:700;color:var(--text-primary);white-space:nowrap;margin-right:12px;display:flex;align-items:center;gap:6px}
+.nav-brand svg{width:22px;height:22px}
+.nav-scroll{display:flex;gap:6px;overflow-x:auto;flex:1;scrollbar-width:none;-ms-overflow-style:none;padding:4px 0}
+.nav-scroll::-webkit-scrollbar{display:none}
+.nav-btn{padding:6px 14px;border-radius:20px;border:none;background:transparent;color:var(--text-secondary);font-size:13px;font-weight:500;cursor:pointer;white-space:nowrap;transition:all .25s ease;flex-shrink:0}
+.nav-btn:hover{background:rgba(0,102,204,0.08);color:var(--color-primary)}
+.nav-btn.active{background:var(--color-primary);color:#fff;box-shadow:0 2px 12px rgba(0,102,204,0.3)}
+.category-label{font-size:11px;font-weight:600;color:var(--text-secondary);text-transform:uppercase;letter-spacing:1px;padding:6px 10px;white-space:nowrap;flex-shrink:0;display:flex;align-items:center}
+.category-divider{width:1px;height:20px;background:rgba(0,0,0,0.1);flex-shrink:0;margin:0 4px}
+#map{width:100%;height:60vh;margin-top:56px;border-radius:0;position:relative;z-index:1}
+.leaflet-popup-content-wrapper{border-radius:14px!important;box-shadow:0 4px 20px rgba(0,0,0,0.12)!important;font-family:inherit!important}
+.leaflet-popup-content{margin:12px 16px!important;font-size:14px;line-height:1.5}
+.popup-title{font-weight:700;font-size:15px;color:var(--text-primary);margin-bottom:4px}
+.popup-day{color:var(--color-primary);font-size:13px;font-weight:500}
+.content{max-width:900px;margin:0 auto;padding:24px 16px 80px}
+.route-header{background:var(--bg-surface);border-radius:var(--radius);padding:28px;box-shadow:var(--shadow);margin-bottom:24px}
+.route-tag{display:inline-block;padding:4px 12px;border-radius:12px;font-size:12px;font-weight:600;margin-bottom:12px}
+.tag-domestic{background:rgba(0,102,204,0.1);color:var(--color-primary)}
+.tag-overland{background:rgba(42,157,141,0.1);color:var(--color-teal)}
+.route-title{font-size:28px;font-weight:700;margin-bottom:8px;line-height:1.3}
+.route-desc{color:var(--text-secondary);font-size:15px;line-height:1.6;margin-bottom:20px}
+.info-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px}
+.info-item{background:var(--bg-primary);border-radius:14px;padding:16px;display:flex;align-items:flex-start;gap:12px}
+.info-icon{width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0}
+.info-icon.cal{background:rgba(0,102,204,0.1)}
+.info-icon.car{background:rgba(42,157,141,0.1)}
+.info-icon.star{background:rgba(212,175,55,0.1)}
+.info-icon.warn{background:rgba(230,57,70,0.1)}
+.info-label{font-size:12px;color:var(--text-secondary);margin-bottom:2px}
+.info-value{font-size:14px;font-weight:600;color:var(--text-primary)}
+.timeline{margin-top:24px}
+.timeline-title{font-size:20px;font-weight:700;margin-bottom:16px;display:flex;align-items:center;gap:8px}
+.day-card{display:flex;gap:16px;margin-bottom:2px;position:relative}
+.day-marker{width:60px;flex-shrink:0;display:flex;flex-direction:column;align-items:center;padding-top:20px}
+.day-num{width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:#fff;position:relative;z-index:2}
+.day-line{width:2px;flex:1;margin-top:4px;opacity:0.2}
+.day-card-body{flex:1;background:var(--bg-surface);border-radius:16px;padding:18px 20px;margin-bottom:10px;box-shadow:0 2px 12px rgba(0,0,0,0.04);transition:all .2s ease;cursor:pointer;border:1.5px solid transparent}
+.day-card-body:hover{box-shadow:0 4px 20px rgba(0,0,0,0.1);transform:translateY(-1px);border-color:rgba(0,102,204,0.2)}
+.day-card-body.highlighted{border-color:var(--color-primary);box-shadow:0 4px 20px rgba(0,102,204,0.15)}
+.day-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}
+.day-label{font-size:13px;font-weight:700;color:var(--color-primary)}
+.day-dist{font-size:12px;color:var(--text-secondary);background:var(--bg-primary);padding:2px 8px;border-radius:8px}
+.day-route{font-size:15px;font-weight:600;color:var(--text-primary);margin-bottom:4px;line-height:1.4}
+.day-note{font-size:13px;color:var(--text-secondary);line-height:1.5}
+.footer{text-align:center;padding:40px 16px;color:var(--text-secondary);font-size:13px;line-height:1.8}
+.footer a{color:var(--color-primary);text-decoration:none}
+@media(max-width:768px){
+.nav{height:50px;padding:0 10px}
+.nav-brand{font-size:14px;margin-right:8px}
+.nav-btn{padding:5px 11px;font-size:12px}
+#map{height:45vh;margin-top:50px}
+.route-title{font-size:22px}
+.route-header{padding:20px}
+.info-grid{grid-template-columns:1fr 1fr}
+.day-marker{width:48px}
+.day-num{width:34px;height:34px;font-size:11px}
+.content{padding:16px 12px 60px}
+}
+@media(max-width:480px){
+.info-grid{grid-template-columns:1fr}
+}
+.fade-in{animation:fadeIn .4s ease}
+@keyframes fadeIn{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+</style>
+</head>
+<body>
+<nav class="nav">
+<div class="nav-brand"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>西藏路线</div>
+<div class="nav-scroll" id="navScroll"></div>
+</nav>
+<div id="map"></div>
+<div class="content" id="content"></div>
+<div class="footer">数据来源：马蜂窝北极星攻略《西藏经典行程推荐》<br>地图：© OpenStreetMap contributors</div>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+const ROUTES=[
+{id:"r1",name:"拉萨·羊湖·珠峰·纳木错",sub:"经典8日游",cat:"domestic",color:"#0066CC",days:8,transport:"包车/拼车",crowd:"首次进藏",warning:"注意高反，Day1勿剧烈运动",
+stops:[
+{n:"拉萨",lat:29.65,lon:91.1,d:"D1",desc:"抵达拉萨，适应海拔"},
+{n:"拉萨",lat:29.65,lon:91.12,d:"D2-3",desc:"布达拉宫、大昭寺、八廓街"},
+{n:"羊卓雍措",lat:28.93,lon:90.67,d:"D4",desc:"拉萨→羊湖→卡若拉冰川→日喀则"},
+{n:"卡若拉冰川",lat:28.78,lon:90.25,d:"D4",desc:"途经冰川"},
+{n:"日喀则",lat:29.27,lon:88.88,d:"D4",desc:"住日喀则"},
+{n:"定日",lat:28.66,lon:87.12,d:"D5",desc:"日喀则→定日→珠峰大本营"},
+{n:"珠峰大本营",lat:28.14,lon:86.85,d:"D5-6",desc:"观日出后返回日喀则"},
+{n:"日喀则",lat:29.27,lon:88.88,d:"D7",desc:"扎什伦布寺→拉萨"},
+{n:"纳木错",lat:30.7,lon:90.5,d:"D8",desc:"拉萨→纳木错→拉萨"}
+],schedule:[
+{d:"D1",route:"抵达拉萨",note:"海拔3650m，注意休息适应，勿剧烈运动"},
+{d:"D2-3",route:"拉萨市区游玩",note:"布达拉宫、大昭寺、八廓街、色拉寺辩经"},
+{d:"D4",route:"拉萨→羊卓雍措→卡若拉冰川→日喀则",note:"羊湖海拔4441m，沿途拍摄冰川"},
+{d:"D5",route:"日喀则→定日→珠峰大本营",note:"海拔5200m，注意保暖防风"},
+{d:"D6",route:"珠峰大本营（观日出）→日喀则",note:"清晨观赏珠峰金色日照"},
+{d:"D7",route:"日喀则→扎什伦布寺→拉萨",note:"参观历代班禅驻锡地"},
+{d:"D8",route:"拉萨→纳木错→拉萨",note:"海拔4718m，圣湖日落/日出，注意保暖"}
+]},
+{id:"r2",name:"林芝·山南·羊湖",sub:"8日环线",cat:"domestic",color:"#D4AF37",days:8,transport:"包车/越野",crowd:"自然风光爱好者",warning:"墨脱需边防证，部分路段险峻",
+stops:[
+{n:"巴松措",lat:29.65,lon:94.13,d:"D1",desc:"拉萨→林芝（巴松措）"},
+{n:"雅鲁藏布大峡谷",lat:29.8,lon:95.0,d:"D2",desc:"林芝→大峡谷→索松村"},
+{n:"索松村",lat:29.97,lon:94.85,d:"D2",desc:"南迦巴瓦峰最佳观景点"},
+{n:"波密",lat:29.86,lon:95.77,d:"D3",desc:"林芝→波密（米堆冰川）"},
+{n:"米堆冰川",lat:29.38,lon:96.33,d:"D4",desc:"波密→然乌湖→米堆冰川→波密"},
+{n:"然乌湖",lat:29.42,lon:96.83,d:"D4",desc:"高原湖泊"},
+{n:"墨脱",lat:29.33,lon:95.33,d:"D5",desc:"波密→墨脱（莲花秘境）"},
+{n:"米林",lat:29.22,lon:94.21,d:"D6",desc:"墨脱→米林"},
+{n:"拉姆拉错",lat:29.25,lon:92.17,d:"D7",desc:"米林→拉姆拉错→加查"},
+{n:"加查",lat:29.14,lon:92.63,d:"D7",desc:"住加查"},
+{n:"雍布拉康",lat:29.24,lon:91.78,d:"D8",desc:"加查→雍布拉康→桑耶寺→拉萨"},
+{n:"桑耶寺",lat:29.32,lon:91.50,d:"D8",desc:"西藏第一座寺庙"}
+],schedule:[
+{d:"D1",route:"拉萨→巴松措→林芝",note:"巴松措湖心岛，海拔3480m"},
+{d:"D2",route:"林芝→雅鲁藏布大峡谷→索松村",note:"世界最深峡谷，观南迦巴瓦峰日落"},
+{d:"D3",route:"林芝→波密",note:"沿途原始森林风光，通麦天险"},
+{d:"D4",route:"波密→然乌湖→米堆冰川→波密",note:"然乌湖季节性变化，冰川徒步"},
+{d:"D5",route:"波密→墨脱",note:"中国最后一个通公路的县，莲花秘境"},
+{d:"D6",route:"墨脱→米林",note:"沿途热带雨林到高山草甸垂直景观"},
+{d:"D7",route:"米林→拉姆拉错→加查",note:"拉姆拉错海拔5100m，需徒步"},
+{d:"D8",route:"加查→雍布拉康→青朴修行地→桑耶寺→拉萨",note:"西藏文化发源地，第一座寺庙"}
+]},
+{id:"r3a",name:"阿里南线",sub:"9日精华",cat:"domestic",color:"#E63946",days:9,transport:"越野车",crowd:"深度旅行者",warning:"海拔高(4500m+)，需边防证",
+stops:[
+{n:"羊卓雍措",lat:28.93,lon:90.67,d:"D1",desc:"拉萨→羊湖→日喀则"},
+{n:"日喀则",lat:29.27,lon:88.88,d:"D1",desc:"住日喀则"},
+{n:"萨嘎",lat:29.33,lon:85.60,d:"D2",desc:"日喀则→萨嘎"},
+{n:"玛旁雍错",lat:30.67,lon:81.47,d:"D3",desc:"萨嘎→玛旁雍错→普兰"},
+{n:"普兰",lat:30.28,lon:81.18,d:"D3",desc:"住普兰"},
+{n:"冈仁波齐",lat:31.07,lon:81.31,d:"D4",desc:"普兰→冈仁波齐→塔钦"},
+{n:"塔钦",lat:31.00,lon:81.28,d:"D4-6",desc:"冈仁波齐转山2天"},
+{n:"札达土林",lat:31.48,lon:79.68,d:"D7",desc:"塔钦→札达土林→古格王朝"},
+{n:"古格王朝",lat:31.52,lon:79.77,d:"D7",desc:"神秘古文明遗址"},
+{n:"狮泉河",lat:32.50,lon:80.10,d:"D8",desc:"札达→狮泉河"},
+{n:"班公错",lat:33.33,lon:78.97,d:"D9",desc:"狮泉河→班公错→狮泉河"}
+],schedule:[
+{d:"D1",route:"拉萨→羊卓雍措→日喀则",note:"海拔逐步升高适应"},
+{d:"D2",route:"日喀则→萨嘎",note:"沿途高原草甸，海拔渐升"},
+{d:"D3",route:"萨嘎→玛旁雍错→普兰",note:"圣湖玛旁雍错，海拔4585m"},
+{d:"D4",route:"普兰→冈仁波齐→塔钦",note:"神山冈仁波齐，海拔5648m"},
+{d:"D5-6",route:"冈仁波齐转山（2天）",note:"转山全程约52km，最高海拔5630m"},
+{d:"D7",route:"塔钦→札达土林→古格王朝",note:"壮观土林地貌，古格王朝遗址"},
+{d:"D8",route:"札达→狮泉河",note:"阿里地区首府"},
+{d:"D9",route:"狮泉河→班公错→狮泉河",note:"班公错一半淡水一半咸水，鸟岛"}
+]},
+{id:"r3b",name:"阿里大北线",sub:"15日大环线",cat:"domestic",color:"#E63946",days:15,transport:"硬派越野",crowd:"资深旅行者",warning:"全程高海拔，无人区段需充分准备",
+stops:[
+{n:"羊卓雍措",lat:28.93,lon:90.67,d:"D1",desc:"拉萨→羊湖→日喀则"},
+{n:"日喀则",lat:29.27,lon:88.88,d:"D1",desc:"住日喀则"},
+{n:"珠峰大本营",lat:28.14,lon:86.85,d:"D2",desc:"日喀则→珠峰"},
+{n:"萨嘎",lat:29.33,lon:85.60,d:"D3",desc:"珠峰→萨嘎"},
+{n:"玛旁雍错",lat:30.67,lon:81.47,d:"D4",desc:"萨嘎→玛旁雍错→普兰"},
+{n:"普兰",lat:30.28,lon:81.18,d:"D4",desc:"住普兰"},
+{n:"冈仁波齐",lat:31.07,lon:81.31,d:"D5",desc:"普兰→冈仁波齐→塔钦"},
+{n:"塔钦",lat:31.00,lon:81.28,d:"D5-7",desc:"转山2天"},
+{n:"札达土林",lat:31.48,lon:79.68,d:"D8",desc:"塔钦→札达→古格王朝"},
+{n:"古格王朝",lat:31.52,lon:79.77,d:"D8",desc:"古格王朝遗址"},
+{n:"狮泉河",lat:32.50,lon:80.10,d:"D9",desc:"札达→狮泉河"},
+{n:"班公错",lat:33.33,lon:78.97,d:"D10",desc:"狮泉河→班公错→狮泉河"},
+{n:"仁多",lat:32.35,lon:83.60,d:"D11",desc:"狮泉河→仁多"},
+{n:"措勤",lat:31.48,lon:85.67,d:"D12",desc:"仁多→措勤"},
+{n:"文布南村",lat:31.60,lon:87.00,d:"D13",desc:"措勤→文布南村（当惹雍错）"},
+{n:"尼玛",lat:31.78,lon:87.23,d:"D14",desc:"文布南村→尼玛→班戈"},
+{n:"班戈",lat:31.37,lon:90.01,d:"D14",desc:"住班戈"},
+{n:"纳木错",lat:30.7,lon:90.5,d:"D15",desc:"班戈→纳木错→拉萨"}
+],schedule:[
+{d:"D1",route:"拉萨→羊卓雍措→日喀则",note:"经典开篇"},
+{d:"D2",route:"日喀则→珠峰大本营",note:"世界之巅"},
+{d:"D3",route:"珠峰→萨嘎",note:"沿途高原风光"},
+{d:"D4",route:"萨嘎→玛旁雍错→普兰",note:"圣湖朝圣"},
+{d:"D5",route:"普兰→冈仁波齐→塔钦",note:"神山脚下"},
+{d:"D6-7",route:"冈仁波齐转山（2天）",note:"52km转山道"},
+{d:"D8",route:"塔钦→札达土林→古格王朝",note:"土林与古文明"},
+{d:"D9",route:"札达→狮泉河",note:"阿里首府"},
+{d:"D10",route:"狮泉河→班公错→狮泉河",note:"跨国湖泊"},
+{d:"D11",route:"狮泉河→仁多",note:"进入无人区边缘"},
+{d:"D12",route:"仁多→措勤",note:"高原湖泊群"},
+{d:"D13",route:"措勤→文布南村",note:"当惹雍错，苯教圣湖"},
+{d:"D14",route:"文布南村→尼玛→班戈",note:"羌塘草原"},
+{d:"D15",route:"班戈→纳木错→拉萨",note:"圣湖收尾，回到拉萨"}
+]},
+{id:"r4",name:"川藏南线 G318",sub:"中国人的景观大道",cat:"overland",color:"#2A9D8F",days:10,transport:"自驾/包车",crowd:"首次进藏首选",warning:"雨季(7-8月)注意塌方，限速多",
+stops:[
+{n:"成都",lat:30.57,lon:104.07,d:"起点",desc:"出发城市"},
+{n:"雅安",lat:29.98,lon:103.01,d:"D1",desc:"成都→雅安"},
+{n:"康定",lat:30.05,lon:101.96,d:"D2",desc:"雅安→康定（折多山）"},
+{n:"理塘",lat:30.00,lon:100.27,d:"D3",desc:"康定→理塘（世界高城）"},
+{n:"巴塘",lat:30.00,lon:99.10,d:"D4",desc:"理塘→巴塘"},
+{n:"芒康",lat:29.68,lon:98.60,d:"D5",desc:"巴塘→芒康（入藏）"},
+{n:"左贡",lat:29.67,lon:97.85,d:"D6",desc:"芒康→左贡"},
+{n:"八宿",lat:29.85,lon:96.92,d:"D7",desc:"左贡→八宿（怒江72拐）"},
+{n:"然乌",lat:29.42,lon:96.83,d:"D7",desc:"八宿→然乌湖"},
+{n:"波密",lat:29.86,lon:95.77,d:"D8",desc:"然乌→波密"},
+{n:"林芝",lat:29.65,lon:94.13,d:"D9",desc:"波密→林芝"},
+{n:"拉萨",lat:29.65,lon:91.1,d:"D10",desc:"林芝→拉萨"}
+],schedule:[
+{d:"D1",route:"成都→雅安→康定",dist:"280km",note:"翻越折多山(4298m)"},
+{d:"D2",route:"康定→理塘",dist:"280km",note:"翻越多座高山，世界高城4014m"},
+{d:"D3",route:"理塘→巴塘",dist:"170km",note:"毛垭大草原"},
+{d:"D4",route:"巴塘→芒康",dist:"100km",note:"金沙江大桥入藏"},
+{d:"D5",route:"芒康→左贡",dist:"150km",note:"翻越拉乌山、觉巴山"},
+{d:"D6",route:"左贡→八宿",dist:"200km",note:"怒江72拐，东达山5130m"},
+{d:"D7",route:"八宿→然乌湖→波密",dist:"220km",note:"然乌湖、米堆冰川"},
+{d:"D8",route:"波密→林芝",dist:"230km",note:"通麦天险、鲁朗林海"},
+{d:"D9",route:"林芝→工布江达→墨竹工卡",dist:"300km",note:"尼洋河风光"},
+{d:"D10",route:"抵达拉萨",dist:"100km",note:"全程终点，318国道5000km碑"}
+]},
+{id:"r5",name:"川藏北线 G317",sub:"宗教文化之路",cat:"overland",color:"#8B5CF6",days:12,transport:"硬派越野",crowd:"文化/宗教爱好者",warning:"路况差，需越野车；海拔更高",
+stops:[
+{n:"成都",lat:30.57,lon:104.07,d:"起点",desc:"出发城市"},
+{n:"汶川",lat:31.90,lon:103.46,d:"D1",desc:"成都→汶川"},
+{n:"马尔康",lat:31.90,lon:102.38,d:"D1",desc:"汶川→马尔康"},
+{n:"色达",lat:32.27,lon:100.33,d:"D2",desc:"马尔康→色达"},
+{n:"甘孜",lat:31.62,lon:99.99,d:"D3",desc:"色达→甘孜"},
+{n:"德格",lat:31.81,lon:98.58,d:"D4",desc:"甘孜→德格"},
+{n:"昌都",lat:31.14,lon:97.17,d:"D5",desc:"德格→昌都"},
+{n:"丁青",lat:31.42,lon:95.59,d:"D6",desc:"昌都→丁青"},
+{n:"巴青",lat:31.94,lon:94.03,d:"D7",desc:"丁青→巴青"},
+{n:"索县",lat:31.88,lon:93.79,d:"D8",desc:"巴青→索县"},
+{n:"那曲",lat:31.48,lon:92.05,d:"D8",desc:"索县→那曲"},
+{n:"拉萨",lat:29.65,lon:91.1,d:"D9",desc:"那曲→拉萨"}
+],schedule:[
+{d:"D1",route:"成都→汶川→马尔康",dist:"330km",note:"桃坪羌寨、卓克基土司官寨"},
+{d:"D2",route:"马尔康→色达",dist:"280km",note:"五明佛学院，红色信仰之城"},
+{d:"D3",route:"色达→甘孜",dist:"150km",note:"沿途甘孜寺"},
+{d:"D4",route:"甘孜→德格",dist:"200km",note:"德格印经院，藏区文化中心"},
+{d:"D5",route:"德格→昌都",dist:"330km",note:"雀儿山、金沙江"},
+{d:"D6",route:"昌都→丁青",dist:"250km",note:"沿途藏东峡谷"},
+{d:"D7",route:"丁青→巴青",dist:"230km",note:"翻越他念他翁山"},
+{d:"D8",route:"巴青→索县→那曲",dist:"260km",note:"藏北草原"},
+{d:"D9",route:"那曲→拉萨",dist:"400km",note:"青藏公路段，草原风光"}
+]},
+{id:"r6",name:"青藏线 G109",sub:"天路进藏",cat:"overland",color:"#F59E0B",days:7,transport:"自驾/火车",crowd:"最安全进藏路线",warning:"冻土路段注意沉降，大货车多",
+stops:[
+{n:"西宁",lat:36.62,lon:101.78,d:"起点",desc:"出发城市"},
+{n:"青海湖",lat:36.89,lon:100.15,d:"D1",desc:"西宁→青海湖"},
+{n:"茶卡盐湖",lat:36.72,lon:99.09,d:"D2",desc:"青海湖→茶卡盐湖→德令哈"},
+{n:"德令哈",lat:37.37,lon:97.36,d:"D2",desc:"住德令哈"},
+{n:"格尔木",lat:36.42,lon:94.90,d:"D3",desc:"德令哈→格尔木"},
+{n:"昆仑山口",lat:36.07,lon:94.77,d:"D4",desc:"格尔木→昆仑山口"},
+{n:"可可西里",lat:35.45,lon:91.50,d:"D4",desc:"穿越可可西里"},
+{n:"沱沱河",lat:34.21,lon:92.43,d:"D4",desc:"长江源"},
+{n:"唐古拉山口",lat:33.00,lon:91.33,d:"D5",desc:"海拔5231m，青藏最高点"},
+{n:"那曲",lat:31.48,lon:92.05,d:"D5",desc:"沱沱河→那曲"},
+{n:"当雄",lat:30.48,lon:91.10,d:"D6",desc:"那曲→纳木错→当雄"},
+{n:"拉萨",lat:29.65,lon:91.1,d:"D7",desc:"当雄→拉萨"}
+],schedule:[
+{d:"D1",route:"西宁→青海湖",dist:"150km",note:"中国最大内陆湖"},
+{d:"D2",route:"青海湖→茶卡盐湖→德令哈",dist:"350km",note:"天空之镜茶卡盐湖"},
+{d:"D3",route:"德令哈→格尔木",dist:"350km",note:"穿越柴达木盆地"},
+{d:"D4",route:"格尔木→昆仑山口→可可西里→沱沱河",dist:"420km",note:"昆仑山口4768m，穿越可可西里无人区"},
+{d:"D5",route:"沱沱河→唐古拉山口→那曲",dist:"410km",note:"唐古拉山口5231m，全线最高点"},
+{d:"D6",route:"那曲→纳木错→当雄",dist:"230km",note:"圣湖纳木错"},
+{d:"D7",route:"当雄→拉萨",dist:"170km",note:"抵达圣城"}
+]},
+{id:"r7",name:"滇藏线 G214",sub:"风花雪月入天路",cat:"overland",color:"#EC4899",days:10,transport:"自驾/包车",crowd:"喜欢多元风光",warning:"雨季(6-9月)慎选，滑坡多发",
+stops:[
+{n:"昆明",lat:25.04,lon:102.68,d:"起点",desc:"春城出发"},
+{n:"大理",lat:25.59,lon:100.23,d:"D1",desc:"昆明→大理"},
+{n:"丽江",lat:26.88,lon:100.23,d:"D2",desc:"大理→丽江"},
+{n:"香格里拉",lat:27.83,lon:99.70,d:"D3",desc:"丽江→香格里拉"},
+{n:"德钦",lat:28.49,lon:98.91,d:"D4",desc:"香格里拉→德钦（梅里雪山）"},
+{n:"盐井",lat:29.18,lon:98.58,d:"D5",desc:"德钦→盐井"},
+{n:"芒康",lat:29.68,lon:98.60,d:"D5",desc:"盐井→芒康（汇入G318）"},
+{n:"左贡",lat:29.67,lon:97.85,d:"D6",desc:"芒康→左贡"},
+{n:"然乌",lat:29.42,lon:96.83,d:"D7",desc:"左贡→然乌"},
+{n:"波密",lat:29.86,lon:95.77,d:"D8",desc:"然乌→波密"},
+{n:"林芝",lat:29.65,lon:94.13,d:"D9",desc:"波密→林芝"},
+{n:"拉萨",lat:29.65,lon:91.1,d:"D10",desc:"林芝→拉萨"}
+],schedule:[
+{d:"D1",route:"昆明→大理",dist:"300km",note:"洱海、苍山"},
+{d:"D2",route:"大理→丽江",dist:"180km",note:"古城、玉龙雪山"},
+{d:"D3",route:"丽江→香格里拉",dist:"180km",note:"虎跳峡、普达措"},
+{d:"D4",route:"香格里拉→德钦",dist:"170km",note:"梅里雪山日照金山"},
+{d:"D5",route:"德钦→盐井→芒康",dist:"220km",note:"千年古盐田，汇入G318"},
+{d:"D6",route:"芒康→左贡→八宿",dist:"300km",note:"翻越多座高山"},
+{d:"D7",route:"八宿→然乌湖",dist:"150km",note:"然乌湖"},
+{d:"D8",route:"然乌→波密→林芝",dist:"230km",note:"冰川森林"},
+{d:"D9",route:"林芝→工布江达",dist:"300km",note:"尼洋河谷"},
+{d:"D10",route:"抵达拉萨",dist:"400km",note:"全程终点"}
+]},
+{id:"r8",name:"丙察察线",sub:"最险进藏路",cat:"overland",color:"#EF4444",days:6,transport:"专业越野",crowd:"探险爱好者",warning:"极险路段，仅适合专业越野；雨季禁行",
+stops:[
+{n:"丙中洛",lat:27.97,lon:98.66,d:"起点",desc:"怒江第一湾"},
+{n:"察瓦龙",lat:28.45,lon:97.33,d:"D1",desc:"丙中洛→察瓦龙"},
+{n:"察隅",lat:28.66,lon:97.47,d:"D2",desc:"察瓦龙→察隅"},
+{n:"然乌",lat:29.42,lon:96.83,d:"D3",desc:"察隅→然乌"},
+{n:"波密",lat:29.86,lon:95.77,d:"D4",desc:"然乌→波密"},
+{n:"林芝",lat:29.65,lon:94.13,d:"D5",desc:"波密→林芝"},
+{n:"拉萨",lat:29.65,lon:91.1,d:"D6",desc:"林芝→拉萨"}
+],schedule:[
+{d:"D1",route:"丙中洛→察瓦龙",dist:"80km",note:"怒江大峡谷，老虎嘴、大流沙"},
+{d:"D2",route:"察瓦龙→察隅",dist:"200km",note:"翻越两座4000m+山口"},
+{d:"D3",route:"察隅→然乌",dist:"170km",note:"汇入G318"},
+{d:"D4",route:"然乌→波密",dist:"130km",note:"冰川湖泊"},
+{d:"D5",route:"波密→林芝",dist:"230km",note:"通麦、鲁朗"},
+{d:"D6",route:"林芝→拉萨",dist:"400km",note:"林拉高速"}
+]},
+{id:"r9",name:"新藏线 G219",sub:"世界最高公路",cat:"overland",color:"#6366F1",days:10,transport:"专业越野",crowd:"资深探险者",warning:"需边防证；平均海拔4500m+，最艰苦进藏线",
+stops:[
+{n:"叶城",lat:37.88,lon:77.41,d:"起点",desc:"新藏线零公里"},
+{n:"三十里营房",lat:36.50,lon:78.05,d:"D1",desc:"叶城→三十里营房"},
+{n:"大红柳滩",lat:35.45,lon:78.80,d:"D2",desc:"三十里营房→大红柳滩"},
+{n:"班公错",lat:33.33,lon:78.97,d:"D3",desc:"大红柳滩→班公错"},
+{n:"狮泉河",lat:32.50,lon:80.10,d:"D4",desc:"班公错→狮泉河"},
+{n:"札达",lat:31.48,lon:79.68,d:"D5",desc:"狮泉河→札达"},
+{n:"冈仁波齐",lat:31.07,lon:81.31,d:"D6",desc:"札达→冈仁波齐"},
+{n:"玛旁雍错",lat:30.67,lon:81.47,d:"D7",desc:"冈仁波齐→玛旁雍错"},
+{n:"萨嘎",lat:29.33,lon:85.60,d:"D8",desc:"玛旁雍错→萨嘎"},
+{n:"日喀则",lat:29.27,lon:88.88,d:"D9",desc:"萨嘎→日喀则"},
+{n:"拉萨",lat:29.65,lon:91.1,d:"D10",desc:"日喀则→拉萨"}
+],schedule:[
+{d:"D1",route:"叶城→三十里营房",dist:"360km",note:"海拔从1365m骤升至4900m"},
+{d:"D2",route:"三十里营房→大红柳滩",dist:"240km",note:"翻越昆仑达坂、黑卡达坂"},
+{d:"D3",route:"大红柳滩→班公错",dist:"350km",note:"穿越羌塘无人区西缘"},
+{d:"D4",route:"班公错→狮泉河",dist:"130km",note:"阿里首府"},
+{d:"D5",route:"狮泉河→札达",dist:"200km",note:"土林与古格"},
+{d:"D6",route:"札达→冈仁波齐",dist:"200km",note:"神山"},
+{d:"D7",route:"冈仁波齐→玛旁雍错",dist:"100km",note:"圣湖"},
+{d:"D8",route:"玛旁雍错→萨嘎",dist:"450km",note:"长途跋涉"},
+{d:"D9",route:"萨嘎→日喀则",dist:"450km",note:"沿G219东行"},
+{d:"D10",route:"日喀则→拉萨",dist:"280km",note:"抵达终点"}
+]},
+{id:"r10",name:"G345青藏新线",sub:"2024年全线通车",cat:"overland",color:"#0EA5E9",days:5,transport:"越野/探险",crowd:"小众探险者",warning:"新路线，配套不完善；需自备补给",
+stops:[
+{n:"玉树",lat:33.00,lon:97.01,d:"起点",desc:"康巴藏区重镇"},
+{n:"杂多",lat:32.89,lon:95.30,d:"D1",desc:"玉树→杂多"},
+{n:"聂荣",lat:31.27,lon:92.30,d:"D2",desc:"杂多→聂荣"},
+{n:"那曲",lat:31.48,lon:92.05,d:"D3",desc:"聂荣→那曲"},
+{n:"当雄",lat:30.48,lon:91.10,d:"D4",desc:"那曲→纳木错→当雄"},
+{n:"拉萨",lat:29.65,lon:91.1,d:"D5",desc:"当雄→拉萨"}
+],schedule:[
+{d:"D1",route:"玉树→杂多",dist:"200km",note:"澜沧江源头"},
+{d:"D2",route:"杂多→聂荣",dist:"300km",note:"穿越三江源腹地"},
+{d:"D3",route:"聂荣→那曲",dist:"200km",note:"藏北高原"},
+{d:"D4",route:"那曲→纳木错→当雄",dist:"230km",note:"圣湖纳木错"},
+{d:"D5",route:"当雄→拉萨",dist:"170km",note:"抵达拉萨"}
+]}
+];
+
+let map,layerGroup,currentRoute=null;
+function initMap(){
+map=L.map("map",{zoomControl:false,attributionControl:true}).setView([30.5,91],5);
+L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",{attribution:"© OSM",maxZoom:18}).addTo(map);
+L.control.zoom({position:"topright"}).addTo(map);
+layerGroup=L.layerGroup().addTo(map);
+}
+function buildNav(){
+const ns=document.getElementById("navScroll");
+let html='<span class="category-label">境内</span>';
+ROUTES.filter(r=>r.cat==="domestic").forEach(r=>{html+=`<button class="nav-btn" data-id="${r.id}" onclick="switchRoute('${r.id}')">${r.name}</button>`;});
+html+='<div class="category-divider"></div><span class="category-label">进藏</span>';
+ROUTES.filter(r=>r.cat==="overland").forEach(r=>{html+=`<button class="nav-btn" data-id="${r.id}" onclick="switchRoute('${r.id}')">${r.name}</button>`;});
+ns.innerHTML=html;
+}
+function switchRoute(id){
+const r=ROUTES.find(x=>x.id===id);if(!r)return;
+currentRoute=r;
+document.querySelectorAll(".nav-btn").forEach(b=>{b.classList.toggle("active",b.dataset.id===id);});
+const ab=document.querySelector(`.nav-btn[data-id="${id}"]`);
+if(ab)ab.scrollIntoView({behavior:"smooth",inline:"center",block:"nearest"});
+renderMap(r);
+renderContent(r);
+window.scrollTo({top:document.getElementById("map").offsetTop+document.getElementById("map").offsetHeight-56,behavior:"smooth"});
+}
+function renderMap(r){
+layerGroup.clearLayers();
+const coords=[];
+const seen={};
+r.stops.forEach(s=>{
+const key=s.n+s.d;
+if(seen[key])return;seen[key]=1;
+const ll=[s.lat,s.lon];coords.push(ll);
+const marker=L.circleMarker(ll,{radius:7,fillColor:r.color,color:"#fff",weight:2,fillOpacity:0.9});
+marker.bindPopup(`<div class="popup-title">${s.n}</div><div class="popup-day">${s.d}${s.desc?' · '+s.desc:''}</div>`);
+marker.on("mouseover",function(){this.openPopup()});
+layerGroup.addLayer(marker);
+});
+if(coords.length>1)L.polyline(coords,{color:r.color,weight:4,opacity:0.75,smoothFactor:1.5,dashArray:null}).addTo(layerGroup);
+const bounds=L.latLngBounds(coords);
+map.fitBounds(bounds,{padding:[40,40],maxZoom:9});
+}
+function renderContent(r){
+const c=document.getElementById("content");
+const catClass=r.cat==="domestic"?"tag-domestic":"tag-overland";
+const catLabel=r.cat==="domestic"?"西藏境内经典":"进藏自驾线路";
+let h=`<div class="route-header fade-in"><span class="route-tag ${catClass}">${catLabel}</span><h1 class="route-title">${r.name} <span style="color:var(--text-secondary);font-weight:400;font-size:20px">${r.sub}</span></h1><p class="route-desc">${r.warning}</p><div class="info-grid"><div class="info-item"><div class="info-icon cal">📅</div><div><div class="info-label">建议天数</div><div class="info-value">${r.days}天</div></div></div><div class="info-item"><div class="info-icon car">🚗</div><div><div class="info-label">交通方式</div><div class="info-value">${r.transport}</div></div></div><div class="info-item"><div class="info-icon star">⭐</div><div><div class="info-label">适合人群</div><div class="info-value">${r.crowd}</div></div></div><div class="info-item"><div class="info-icon warn">⚠️</div><div><div class="info-label">注意事项</div><div class="info-value" style="font-weight:400;font-size:13px">${r.warning}</div></div></div></div></div>`;
+h+='<div class="timeline fade-in"><div class="timeline-title">📋 每日行程</div>';
+r.schedule.forEach((s,i)=>{
+h+=`<div class="day-card"><div class="day-marker"><div class="day-num" style="background:${r.color}">${s.d}</div><div class="day-line" style="background:${r.color}"></div></div><div class="day-card-body" onclick="highlightStop(this,${i})" data-idx="${i}"><div class="day-head"><span class="day-label">${s.d}</span>${s.dist?`<span class="day-dist">${s.dist}</span>`:''}</div><div class="day-route">${s.route}</div><div class="day-note">${s.note}</div></div></div>`;
+});
+h+='</div>';
+c.innerHTML=h;
+}
+function highlightStop(el,idx){
+document.querySelectorAll(".day-card-body").forEach(c=>c.classList.remove("highlighted"));
+el.classList.add("highlighted");
+const r=currentRoute;if(!r)return;
+let si=0;const seen2={};
+for(let i=0;i<r.stops.length;i++){
+const s=r.stops[i];const key=s.n+s.d;
+if(seen2[key])continue;seen2[key]=1;
+if(si===idx){map.setView([s.lat,s.lon],Math.max(map.getZoom(),8),{animate:true});break;}
+si++;
+}
+}
+initMap();buildNav();
+switchRoute("r1");
+</script>
+</body>
+</html>

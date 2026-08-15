@@ -11,17 +11,17 @@ body{font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","SF Pro Text"
 .nav{position:fixed;top:0;left:0;right:0;z-index:1000;background:var(--bg-glass);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-bottom:1px solid rgba(0,0,0,0.08);padding:0 16px;height:56px;display:flex;align-items:center;gap:8px}
 .nav-brand{font-size:16px;font-weight:700;color:var(--text-primary);white-space:nowrap;display:flex;align-items:center;gap:6px}
 .nav-brand svg{width:22px;height:22px}
-#map{width:100%;height:55vh;margin-top:56px;border-radius:0;position:relative;z-index:1}
+#map{width:100%;height:50vh;margin-top:56px;position:relative;z-index:1}
 .content{max-width:900px;margin:0 auto;padding:24px 16px 80px}
-.route-header{background:var(--bg-surface);border-radius:var(--radius);padding:28px;box-shadow:var(--shadow);margin-bottom:24px}
+.route-header{background:var(--bg-surface);border-radius:var(--radius);padding:28px;box-shadow:var(--shadow);margin-bottom:20px}
 .route-tag{display:inline-block;padding:4px 12px;border-radius:12px;font-size:12px;font-weight:600;margin-bottom:12px;background:rgba(0,102,204,0.1);color:var(--color-primary)}
-.route-title{font-size:28px;font-weight:700;margin-bottom:8px;line-height:1.3}
-.route-sub{color:var(--text-secondary);font-size:15px;line-height:1.6;margin-bottom:20px}
+.route-title{font-size:26px;font-weight:700;margin-bottom:8px;line-height:1.3}
+.route-sub{color:var(--text-secondary);font-size:15px;line-height:1.6;margin-bottom:16px}
 .tip-box{background:rgba(0,102,204,0.05);border-radius:14px;padding:16px 18px;margin-bottom:20px;display:flex;gap:10px;align-items:flex-start}
 .tip-box .icon{font-size:20px;flex-shrink:0}
 .tip-box .text{font-size:14px;color:var(--text-primary);line-height:1.6}
-.info-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px}
-.info-item{background:var(--bg-primary);border-radius:14px;padding:16px;display:flex;align-items:flex-start;gap:12px}
+.info-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px}
+.info-item{background:var(--bg-primary);border-radius:14px;padding:14px;display:flex;align-items:flex-start;gap:10px}
 .info-icon{width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0}
 .info-icon.cal{background:rgba(0,102,204,0.1)}
 .info-icon.car{background:rgba(42,157,141,0.1)}
@@ -29,13 +29,19 @@ body{font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","SF Pro Text"
 .info-icon.warn{background:rgba(230,57,70,0.1)}
 .info-label{font-size:12px;color:var(--text-secondary);margin-bottom:2px}
 .info-value{font-size:14px;font-weight:600;color:var(--text-primary)}
-.timeline{margin-top:24px}
+.section-title{font-size:20px;font-weight:700;margin:32px 0 16px;display:flex;align-items:center;gap:8px}
+.prep-card{background:var(--bg-surface);border-radius:16px;padding:20px;margin-bottom:12px;box-shadow:0 2px 12px rgba(0,0,0,0.04)}
+.prep-card h3{font-size:15px;font-weight:700;margin-bottom:10px;display:flex;align-items:center;gap:6px}
+.prep-card ul{list-style:none;padding:0}
+.prep-card li{font-size:13px;color:var(--text-secondary);line-height:1.7;padding-left:16px;position:relative}
+.prep-card li::before{content:"";position:absolute;left:0;top:9px;width:5px;height:5px;border-radius:50%;background:var(--color-primary);opacity:0.4}
+.timeline{margin-top:8px}
 .timeline-title{font-size:20px;font-weight:700;margin-bottom:16px;display:flex;align-items:center;gap:8px}
 .day-card{display:flex;gap:16px;margin-bottom:2px}
-.day-marker{width:60px;flex-shrink:0;display:flex;flex-direction:column;align-items:center;padding-top:20px}
-.day-num{width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:#fff;position:relative;z-index:2}
+.day-marker{width:56px;flex-shrink:0;display:flex;flex-direction:column;align-items:center;padding-top:20px}
+.day-num{width:38px;height:38px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:#fff;position:relative;z-index:2}
 .day-line{width:2px;flex:1;margin-top:4px;opacity:0.2}
-.day-card-body{flex:1;background:var(--bg-surface);border-radius:16px;padding:18px 20px;margin-bottom:10px;box-shadow:0 2px 12px rgba(0,0,0,0.04);transition:all .2s ease;cursor:pointer;border:1.5px solid transparent}
+.day-card-body{flex:1;background:var(--bg-surface);border-radius:16px;padding:18px;margin-bottom:10px;box-shadow:0 2px 12px rgba(0,0,0,0.04);transition:all .2s ease;cursor:pointer;border:1.5px solid transparent}
 .day-card-body:hover{box-shadow:0 4px 20px rgba(0,0,0,0.1);transform:translateY(-1px);border-color:rgba(0,102,204,0.2)}
 .day-card-body.highlighted{border-color:var(--color-primary);box-shadow:0 4px 20px rgba(0,102,204,0.15)}
 .day-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}
@@ -45,17 +51,29 @@ body{font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","SF Pro Text"
 .day-note{font-size:13px;color:var(--text-secondary);line-height:1.5}
 .nav-link{display:inline-block;margin-top:8px;padding:4px 12px;border-radius:14px;background:rgba(0,102,204,0.1);color:var(--color-primary);font-size:12px;font-weight:600;text-decoration:none;transition:all .2s}
 .nav-link:hover{background:var(--color-primary);color:#fff}
+.detail-toggle{display:inline-block;margin-top:10px;font-size:12px;color:var(--color-primary);font-weight:600;cursor:pointer;border:none;background:none;padding:4px 0}
+.detail-panel{display:none;margin-top:14px;border-top:1px solid rgba(0,0,0,0.06);padding-top:14px}
+.detail-panel.open{display:block;animation:fadeIn .3s ease}
+.detail-section{margin-bottom:14px}
+.detail-section:last-child{margin-bottom:0}
+.detail-section-title{font-size:13px;font-weight:700;color:var(--text-primary);margin-bottom:6px;display:flex;align-items:center;gap:5px}
+.detail-text{font-size:13px;color:var(--text-secondary);line-height:1.7}
+.detail-text strong{color:var(--text-primary);font-weight:600}
+.detail-text .price{color:#E63946;font-weight:600}
+.altitude-badge{display:inline-block;padding:2px 8px;border-radius:8px;font-size:11px;font-weight:600;background:rgba(230,57,70,0.08);color:#E63946;margin-left:6px}
 .footer{text-align:center;padding:40px 16px;color:var(--text-secondary);font-size:13px;line-height:1.8}
+.footer a{color:var(--color-primary);text-decoration:none}
 @media(max-width:768px){
 .nav{height:50px;padding:0 10px}
 .nav-brand{font-size:14px}
-#map{height:42vh;margin-top:50px}
+#map{height:40vh;margin-top:50px}
 .route-title{font-size:22px}
 .route-header{padding:20px}
 .info-grid{grid-template-columns:1fr 1fr}
-.day-marker{width:48px}
-.day-num{width:34px;height:34px;font-size:11px}
+.day-marker{width:46px}
+.day-num{width:32px;height:32px;font-size:11px}
 .content{padding:16px 12px 60px}
+.prep-card{padding:16px}
 }
 @media(max-width:480px){
 .info-grid{grid-template-columns:1fr}
@@ -73,12 +91,11 @@ body{font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","SF Pro Text"
 </nav>
 <div id="map"></div>
 <div class="content" id="content"></div>
-<div class="footer">地图：© 高德地图</div>
+<div class="footer">地图：© 高德地图<br>攻略数据更新于 2026年8月</div>
 <script src="https://webapi.amap.com/maps?v=2.0&key=c69b99057ab90a4de0033f856492385c"></script>
 <script>
 const ROUTE={
-name:"林芝·羊湖·珠峰·纳木错",
-sub:"经典8日游（同事推荐版）",
+name:"林芝·羊湖·珠峰·纳木错",sub:"经典8日游（同事推荐版）",
 warning:"注意高反，Day1勿剧烈运动",
 days:8,transport:"包车/拼车",crowd:"首次进藏",color:"#0066CC",
 stops:[
@@ -103,8 +120,60 @@ schedule:[
 {d:"D6",route:"珠峰大本营（观日出）→日喀则",dist:"约350km",note:"清晨观赏珠峰日照金山，下午返回日喀则"},
 {d:"D7",route:"日喀则·扎什伦布寺→拉萨",dist:"约280km",note:"参观历代班禅驻锡地，下午返回拉萨"},
 {d:"D8",route:"拉萨→纳木错→拉萨",dist:"约440km",note:"纳木错海拔4718m，三大圣湖之一，日落/星空"}
+],
+details:[
+{title:"林芝·索松村",altitude:"海拔3100m",
+guide:"雅鲁藏布大峡谷门票<span class='price'>150元+观光车90元</span>（必购），2天有效。10-11月观测南迦巴瓦概率超70%，3-4月桃花季。关键看点：南迦巴瓦日照金山、索松村桃花、大峡谷、色季拉山口。",
+tips:"海拔3100m，高反风险较低（进藏适应首选）。山区小气候变化大，需预留时间应对不确定性。9月雨季尾声仍有阵雨可能。",
+prepare:"装备：冲锋衣/羽绒服、防晒霜、墨镜、长焦镜头（70-200mm+）、三脚架拍星空、多带相机电池。证件：无需边防证。需购景区门票乘观光车进入。",
+food:"巴面匠牛肉面（人均20-30元）；酸汤饺子；松茸石锅鸡（墨脱石锅炖煮，推荐桃花韵酒店、漫尘度假酒店）；藏香猪肉串；鲁朗石锅鸡。",
+hotel:"索松村300-800元/晚：优峰富氧度假酒店（供氧+地暖）、漫尘度假酒店（全屋地暖+24h供氧）、藏地归心酒店（景观好）。吞白村约半价。"},
+{title:"拉萨",altitude:"海拔3650m",
+guide:"布达拉宫旺季<span class='price'>200元</span>（需提前10天预约，每日限流4000-5000人，周一闭馆）；大昭寺<span class='price'>85元</span>（上午信徒场/下午游客场）；色拉寺<span class='price'>50元</span>（下午3点辩经，周日除外）。八廓街免费。",
+tips:"布达拉宫台阶陡峭（海拔3700m，落差超100m），走20级歇30秒。抵拉萨后适应1-2天再参观。初到前三天不洗澡、不饮酒、不剧烈运动。殿内禁止拍照、戴帽戴墨镜，勿踩门槛。",
+prepare:"布达拉宫必须提前10天在「布达拉宫票务预订系统」微信小程序预约，每日8:30放票，同身份证7天内仅可约1次。装备：SPF50+防晒、墨镜、保暖外套。身份证全程随身携带。",
+food:"光明岗琼甜茶馆（藏面+甜茶，拉萨人气最旺）；玛吉阿米（八廓街网红藏餐）；藏家宴；阿可丁面包坊；措姆凉粉。特色：酥油茶、糌粑、藏面、牦牛肉、青稞酒、酸奶。",
+hotel:"高端：香格里拉大酒店（1200-2000元，供氧充足）；中端：岷山饭店（600-1000元）、亚朵布达拉宫广场店（450-700元）；老城区：古藏殊华供氧客栈大昭寺店（800-1300元）；经济：青旅150-300元。"},
+{title:"羊卓雍措",altitude:"海拔4441m / 山口5030m",
+guide:"门票<span class='price'>100元</span>（半价60元）。上午10点-下午3点光线最好，湖水最蓝。关键看点：岗巴拉山口俯瞰（1号观景台）、2/3号观景台近景、日托寺（门票20元）、环湖公路。",
+tips:"海拔4441m，山口近5000m，比拉萨高，容易高反，下车后缓慢行走。山口风巨大，即使夏季也需羽绒服/冲锋衣。环湖部分路段碎石炮弹坑，建议SUV。",
+prepare:"装备：SPF50+防晒、墨镜、帽子、口罩、羽绒服、干粮和水（环湖餐馆少）。证件：无需边防证。可微信小程序实名预约购票。自驾注意岗巴拉山连续发夹弯。",
+food:"羊湖附近餐饮极少，务必自带干粮和水。浪卡子县城有川菜馆和藏餐馆。特色：藏式牦牛肉火锅、酥油茶、青稞饼。",
+hotel:"浪卡子县城（距湖5-10km）：维也纳等300-600元/晚，部分带供氧。湖景民宿：沐栖·羊湖之境（轻奢湖景房，600-1000元，独立制氧设备）。"},
+{title:"卡若拉冰川",altitude:"冰舌海拔5020-5560m",
+guide:"近距离观景区<span class='price'>约50元</span>，公路边免费远观。游览30-60分钟。上午9-11点或傍晚斜光最佳，冰面泛金或显冰川蓝。看点：万年冰川冰舌、冰裂隙、经幡阵、《红河谷》拍摄地。",
+tips:"海拔5000m+，氧气只有平原一半，步行慢30-40%。冰川反射紫外线加倍，雪盲风险高，必须偏光墨镜+防晒。不得进入冰川活动区域（冰崩裂缝风险）。融水路段湿滑。",
+prepare:"装备：防滑登山鞋、厚外套、帽子手套、偏光墨镜、高倍防晒、便携氧气瓶、葡萄糖。无需边防证，现场购票。建议穿亮色衣服（冰川背景出片）。",
+food:"景区无正式餐厅，自带干粮热水。浪卡子县城（去程方向）或江孜县城（返程方向）可用餐。",
+hotel:"通常作为羊湖→日喀则中途停留，不住宿。住浪卡子或日喀则市区。"},
+{title:"日喀则·扎什伦布寺",altitude:"海拔3840m",
+guide:"扎什伦布寺旺季<span class='price'>100元</span>，淡季55元。开放9:00-17:00（12-14点部分佛殿关闭），游览2.5-3小时。看点：强巴佛殿（世界最大室内铜佛，高26.2m）、措钦大殿、班禅灵塔殿、晒佛台、转经筒长廊。",
+tips:"海拔比拉萨更高（3840m），刚到别洗澡别剧烈运动。佛殿内常年阴凉（10℃以下），夏天也带抓绒外套。入寺脱帽摘墨镜，不踩门槛，转经顺时针，殿内禁拍照，不随意拍僧人。",
+prepare:"装备：抓绒外套、防晒、墨镜、舒适防滑鞋（台阶多）。身份证。门票现场购买无需预约。市区打车起步价10元。",
+food:"藏式酸奶、藏面、藏香猪、烤羊排、朋必（日喀则特色小吃）。推荐：酸奶坊、藏家土鸡面馆、藏家小吃店；日喀则希尔顿藏园餐厅。",
+hotel:"高端：日喀则希尔顿（800-1500元，301间房配供氧，距扎寺2km）；中端：麗枫酒店扎什伦布寺店（300-500元，带供氧+观景）；经济：藏式民宿100-250元。"},
+{title:"珠峰大本营",altitude:"海拔5200m / 加乌拉山口5210m",
+guide:"国家公园门票<span class='price'>160元</span>+环保车<span class='price'>120元</span>往返（自驾不可直达，需在扎西宗换乘），自驾进山费320元。绒布寺门票30元。建议2天1晚（看日落+星空+日出）。加乌拉山口是5座8000米雪山观景台。",
+tips:"海拔5200m，高反风险极高！必须备足氧气+羽绒服（夜间零下）。严禁剧烈运动，走路极慢。严重高反（咳粉红泡沫痰、意识模糊、嘴唇发紫）= 高原肺水肿/脑水肿前兆，吸氧+紧急下撤至少500米+拨120。",
+prepare:"<strong>必须办边防证</strong>：通过「移民局12367」APP/小程序免费办理，最快10分钟出证，目的地写日喀则市定日县。装备：羽绒服/冲锋衣裤、保暖帽手套、便携制氧机（过夜必备）、多瓶氧气瓶（50-100元/罐）、高倍防晒、偏光墨镜、唇膏、睡袋内胆、头灯。",
+food:"帐篷客栈：牦牛肉火锅约78元/位自助、方便面等简餐，价格高选择少。建议自带干粮、自热饭、能量棒、保温杯。扎西宗乡/巴松村餐馆人均50+。",
+hotel:"三档：①大本营帐篷营地（80-150元/床位，多人通铺，条件简陋，部分有牛粪炉，极少供氧）②绒布寺招待所（通铺25-100元，标间300-400元）③巴松村/扎西宗乡民宿（300-400元，海拔4100m，独立卫浴+供氧，舒适安全）。旺季提前预订。"},
+{title:"纳木错",altitude:"海拔4718m / 那根拉山口5190m",
+guide:"旺季套票<span class='price'>210元</span>（门票110+观光车100），48小时内可无限次入园。营业09:30-18:00。关键看点：扎西半岛、那根拉山口、念青唐古拉山倒影、合掌石、星空银河。",
+tips:"海拔4718m，高反风险较高，建议拉萨适应2-3天后再来。昼夜温差20℃+，夏季也要羽绒服。紫外线极强。景区餐饮贵且少，自带干粮。圣湖禁止洗脚、扔垃圾。湖畔野狗多，夜间看星空勿带零食。",
+prepare:"装备：羽绒服/冲锋衣、保暖帽手套、SPF50+防晒、偏光墨镜、润唇膏、保湿面霜、便携氧气瓶、葡萄糖、保温杯、干粮。证件：身份证，无需边防证。可网上订票。",
+food:"景区餐饮极少且贵，强烈自带干粮、自热饭、能量棒和保温杯热水。当雄县城往返途中有川菜和藏餐馆。",
+hotel:"扎西半岛：简易板房/民宿，条件一般，200-500元/晚，旺季提前1个月订。当雄县城：条件更好，200-600元/晚，海拔更低更安全。不拍星空日出的话，住当雄更舒适。"}
 ]
 };
+
+const GENERAL_PREP=[
+{icon:"📋",title:"证件类",items:["身份证（全程随身，住宿购票检查站都需要）","电子边防证（珠峰大本营必须）：「移民局12367」APP/小程序免费办，最快10分钟出证，有效期最长3个月","驾驶证+行驶证（自驾）"]},
+{icon:"🧥",title:"衣物类",items:["洋葱三层：速干内层 + 抓绒/薄羽绒中层 + 防风冲锋衣外层","高帮防水登山鞋","保暖帽、围巾、薄手套（垭口风大体感低5-10℃）","多套内衣袜子"]},
+{icon:"☀️",title:"防晒护肤",items:["SPF50+高倍防晒（每2h补涂，阴天也需要）","偏光墨镜（防雪盲，冰川必备）","宽檐遮阳帽","润唇膏+高保湿面霜（湿度<30%）"]},
+{icon:"💊",title:"药品类",items:["红景天（提前5-10天服用）","葡萄糖口服液/粉（快速补能）","布洛芬（高反头痛神器）","便携氧气瓶（每人2-3罐，珠峰需更多）","蒙脱石散、感冒药、创可贴、晕车药","指夹式血氧仪（低于80%需警惕）"]},
+{icon:"🎒",title:"其他装备",items:["大容量保温杯（每日饮水≥2L）","20000mAh+充电宝","相机+长焦镜头+三脚架","现金1000-2000元（偏远地区信号差）","离线地图（山区无信号）"]}
+];
 
 let map,infoWindow=null,markers=[],polyline=null;
 function initMap(){
@@ -138,22 +207,65 @@ function renderContent(){
 const c=document.getElementById("content");
 let h=`<div class="route-header fade-in">
 <span class="route-tag">定制路线</span>
-<h1 class="route-title">${ROUTE.name} <span style="color:var(--text-secondary);font-weight:400;font-size:20px">${ROUTE.sub}</span></h1>
-<div class="tip-box"><span class="icon">💡</span><span class="text">同事推荐路线：先去林芝看日落金山和星空，再去羊湖，不高的情况下日喀则→珠峰脚下，最好再去纳木错。</span></div>
+<h1 class="route-title">${ROUTE.name} <span style="color:var(--text-secondary);font-weight:400;font-size:18px">${ROUTE.sub}</span></h1>
+<div class="tip-box"><span class="icon">💡</span><span class="text">同事推荐：先去林芝看日落金山和星空，再去羊湖，日喀则→珠峰脚下，最好再去纳木错。</span></div>
 <div class="info-grid">
 <div class="info-item"><div class="info-icon cal">📅</div><div><div class="info-label">建议天数</div><div class="info-value">${ROUTE.days}天</div></div></div>
 <div class="info-item"><div class="info-icon car">🚗</div><div><div class="info-label">交通方式</div><div class="info-value">${ROUTE.transport}</div></div></div>
 <div class="info-item"><div class="info-icon star">⭐</div><div><div class="info-label">适合人群</div><div class="info-value">${ROUTE.crowd}</div></div></div>
 <div class="info-item"><div class="info-icon warn">⚠️</div><div><div class="info-label">注意事项</div><div class="info-value" style="font-weight:400;font-size:13px">${ROUTE.warning}</div></div></div>
 </div></div>`;
-h+='<div class="timeline fade-in"><div class="timeline-title">📋 每日行程</div>';
+
+// 出行准备
+h+=`<div class="section-title">🎒 出行准备清单</div>`;
+GENERAL_PREP.forEach(p=>{
+h+=`<div class="prep-card"><h3>${p.icon} ${p.title}</h3><ul>`;
+p.items.forEach(it=>{h+=`<li>${it}</li>`;});
+h+=`</ul></div>`;
+});
+
+// 每日行程
+h+=`<div class="timeline"><div class="timeline-title">📋 每日行程</div>`;
 ROUTE.schedule.forEach((s,i)=>{
 const stop=ROUTE.stops.find(st=>st.d===s.d);
+const det=ROUTE.details[i];
 const navUrl=stop?`https://uri.amap.com/marker?position=${stop.lon},${stop.lat}&name=${encodeURIComponent(stop.n)}&coordinate=gaode&callnative=1`:'#';
-h+=`<div class="day-card"><div class="day-marker"><div class="day-num" style="background:${ROUTE.color}">${s.d}</div><div class="day-line" style="background:${ROUTE.color}"></div></div><div class="day-card-body" onclick="highlightStop(this,${i})" data-idx="${i}"><div class="day-head"><span class="day-label">${s.d}</span>${s.dist?`<span class="day-dist">${s.dist}</span>`:''}</div><div class="day-route">${s.route}</div><div class="day-note">${s.note}</div>${stop?`<a href="${navUrl}" target="_blank" class="nav-link">📍 导航</a>`:''}</div></div>`;
+h+=`<div class="day-card"><div class="day-marker"><div class="day-num" style="background:${ROUTE.color}">${s.d}</div><div class="day-line" style="background:${ROUTE.color}"></div></div>`;
+h+=`<div class="day-card-body" onclick="highlightStop(this,${i})" data-idx="${i}">`;
+h+=`<div class="day-head"><span class="day-label">${s.d}</span>${s.dist?`<span class="day-dist">${s.dist}</span>`:''}</div>`;
+h+=`<div class="day-route">${s.route}</div>`;
+h+=`<div class="day-note">${s.note}</div>`;
+if(stop) h+=`<a href="${navUrl}" target="_blank" class="nav-link">📍 导航</a>`;
+if(det){
+h+=`<button class="detail-toggle" onclick="event.stopPropagation();toggleDetail(this)">📖 查看攻略 ▾</button>`;
+h+=`<div class="detail-panel">`;
+h+=`<div style="margin-bottom:10px;font-size:14px;font-weight:700">${det.title} <span class="altitude-badge">${det.altitude}</span></div>`;
+h+=`<div class="detail-section"><div class="detail-section-title">🎯 攻略要点</div><div class="detail-text">${det.guide}</div></div>`;
+h+=`<div class="detail-section"><div class="detail-section-title">⚠️ 注意事项</div><div class="detail-text">${det.tips}</div></div>`;
+h+=`<div class="detail-section"><div class="detail-section-title">🎒 提前准备</div><div class="detail-text">${det.prepare}</div></div>`;
+h+=`<div class="detail-section"><div class="detail-section-title">🍜 附近美食</div><div class="detail-text">${det.food}</div></div>`;
+h+=`<div class="detail-section"><div class="detail-section-title">🏨 住宿推荐</div><div class="detail-text">${det.hotel}</div></div>`;
+h+=`</div>`;
+}
+h+=`</div></div>`;
 });
-h+='</div>';
+h+=`</div>`;
+
+// 通用注意事项
+h+=`<div class="section-title">💡 通用注意事项</div>`;
+h+=`<div class="prep-card"><h3>🫁 高反预防</h3><div class="detail-text">阶梯式适应：先飞林芝（2900m）→ 拉萨（3650m）→ 高海拔。初到前三天不奔跑不洗澡不饮酒，以休息为主。</div></div>`;
+h+=`<div class="prep-card"><h3>🚨 高反应对</h3><div class="detail-text">轻微头痛气短正常，多喝温水、放慢脚步；头痛服布洛芬；持续呕吐/呼吸困难/意识模糊=严重信号，立即吸氧+下撤至少500米+拨120。</div></div>`;
+h+=`<div class="prep-card"><h3>🧥 穿衣原则</h3><div class="detail-text">高原一日过四季，永远比觉得需要的多穿一层。如果穿得"刚刚好"，说明还差一层。静止和活动需求不同。</div></div>`;
+h+=`<div class="prep-card"><h3>🙏 尊重民俗</h3><div class="detail-text">进寺庙脱帽摘墨镜不踩门槛，转经顺时针；不随意拍摄僧侣和朝圣者；圣湖禁止洗脚扔垃圾；经幡不随意踩踏。</div></div>`;
+h+=`<div class="prep-card"><h3>🚗 安全出行</h3><div class="detail-text">不坐无资质黑车；自驾提前检修备防滑链，冰雪路段不赶夜路；高海拔垭口慢开车，山体不逗留；不涉足未开发区域。</div></div>`;
+
 c.innerHTML=h;
+}
+function toggleDetail(btn){
+const panel=btn.nextElementSibling;
+const isOpen=panel.classList.contains("open");
+document.querySelectorAll(".detail-panel.open").forEach(p=>{p.classList.remove("open");p.previousElementSibling.textContent="📖 查看攻略 ▾";});
+if(!isOpen){panel.classList.add("open");btn.textContent="📖 收起攻略 ▴";}
 }
 function highlightStop(el,idx){
 document.querySelectorAll(".day-card-body").forEach(c=>c.classList.remove("highlighted"));

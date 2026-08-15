@@ -43,6 +43,8 @@ body{font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","SF Pro Text"
 .day-dist{font-size:12px;color:var(--text-secondary);background:var(--bg-primary);padding:2px 8px;border-radius:8px}
 .day-route{font-size:15px;font-weight:600;color:var(--text-primary);margin-bottom:4px;line-height:1.4}
 .day-note{font-size:13px;color:var(--text-secondary);line-height:1.5}
+.nav-link{display:inline-block;margin-top:8px;padding:4px 12px;border-radius:14px;background:rgba(0,102,204,0.1);color:var(--color-primary);font-size:12px;font-weight:600;text-decoration:none;transition:all .2s}
+.nav-link:hover{background:var(--color-primary);color:#fff}
 .footer{text-align:center;padding:40px 16px;color:var(--text-secondary);font-size:13px;line-height:1.8}
 @media(max-width:768px){
 .nav{height:50px;padding:0 10px}
@@ -120,7 +122,8 @@ if(seen[key])return;seen[key]=1;
 const pos=[s.lon,s.lat];coords.push(pos);
 const marker=new AMap.Marker({position:pos,content:`<div style="width:14px;height:14px;border-radius:50%;background:${ROUTE.color};border:2.5px solid #fff;box-shadow:0 2px 8px rgba(0,0,0,0.3);"></div>`,offset:new AMap.Pixel(-7,-7),extData:s});
 marker.on("click",function(){
-infoWindow.setContent(`<div style="padding:8px 12px"><div style="font-weight:700;font-size:15px">${s.n}</div><div style="color:#0066CC;font-size:13px;font-weight:500">${s.d}${s.desc?' · '+s.desc:''}</div></div>`);
+const amapUrl=`https://uri.amap.com/marker?position=${s.lon},${s.lat}&name=${encodeURIComponent(s.n)}&coordinate=gaode&callnative=1`;
+infoWindow.setContent(`<div style="padding:10px 14px;min-width:160px"><div style="font-weight:700;font-size:15px">${s.n}</div><div style="color:#0066CC;font-size:13px;font-weight:500;margin:4px 0 8px">${s.d}${s.desc?' · '+s.desc:''}</div><a href="${amapUrl}" target="_blank" style="display:inline-block;padding:4px 12px;border-radius:14px;background:#0066CC;color:#fff;font-size:12px;font-weight:600;text-decoration:none">📍 导航到此</a></div>`);
 infoWindow.open(map,pos);
 });
 map.add(marker);markers.push(marker);
@@ -145,7 +148,9 @@ let h=`<div class="route-header fade-in">
 </div></div>`;
 h+='<div class="timeline fade-in"><div class="timeline-title">📋 每日行程</div>';
 ROUTE.schedule.forEach((s,i)=>{
-h+=`<div class="day-card"><div class="day-marker"><div class="day-num" style="background:${ROUTE.color}">${s.d}</div><div class="day-line" style="background:${ROUTE.color}"></div></div><div class="day-card-body" onclick="highlightStop(this,${i})" data-idx="${i}"><div class="day-head"><span class="day-label">${s.d}</span>${s.dist?`<span class="day-dist">${s.dist}</span>`:''}</div><div class="day-route">${s.route}</div><div class="day-note">${s.note}</div></div></div>`;
+const stop=ROUTE.stops.find(st=>st.d===s.d);
+const navUrl=stop?`https://uri.amap.com/marker?position=${stop.lon},${stop.lat}&name=${encodeURIComponent(stop.n)}&coordinate=gaode&callnative=1`:'#';
+h+=`<div class="day-card"><div class="day-marker"><div class="day-num" style="background:${ROUTE.color}">${s.d}</div><div class="day-line" style="background:${ROUTE.color}"></div></div><div class="day-card-body" onclick="highlightStop(this,${i})" data-idx="${i}"><div class="day-head"><span class="day-label">${s.d}</span>${s.dist?`<span class="day-dist">${s.dist}</span>`:''}</div><div class="day-route">${s.route}</div><div class="day-note">${s.note}</div>${stop?`<a href="${navUrl}" target="_blank" class="nav-link">📍 导航</a>`:''}</div></div>`;
 });
 h+='</div>';
 c.innerHTML=h;

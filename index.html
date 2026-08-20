@@ -118,11 +118,32 @@ days_data:[
 
 let map,currentRoute='A',infoWindow=null;
 let markers=[],polylines=[];
+let drivingAvailable=null; // null=未检测, true/false=检测结果
 
 function initMap(){
 map=new AMap.Map("map",{zoom:5,center:[91,30.5],viewMode:"2D",resizeEnable:true});
 infoWindow=new AMap.InfoWindow({offset:new AMap.Pixel(0,-30),closeWhenClickMap:true});
+// 检测驾车路线插件是否可用
+checkDrivingPlugin(function(available){
+drivingAvailable=available;
+console.log('Driving plugin available:',available);
 renderRoute('A');
+});
+}
+
+function checkDrivingPlugin(callback){
+try{
+if(typeof AMap==='undefined'||!AMap.Driving){
+callback(false);
+return;
+}
+// 尝试创建一个Driving实例来验证
+var testDriving=new AMap.Driving({map:null});
+callback(true);
+}catch(e){
+console.log('Driving plugin check failed:',e);
+callback(false);
+}
 }
 
 function clearOverlays(){
@@ -130,9 +151,10 @@ markers.forEach(m=>map.remove(m));markers=[];
 polylines.forEach(p=>map.remove(p));polylines=[];
 }
 
-/* ====== 绘制一段行程的驾车路线 + 标记点 ====== */
+/* ====== 绘制一段行程的路线 + 标记点 ====== */
 function renderSegment(stops,dayLabel,color,routeTag,mOffset){
 if(!stops||!stops.length)return;
+
 // 标记点（带D编号）
 for(var i=0;i<stops.length;i++){
 var s=stops[i];
@@ -148,32 +170,60 @@ infoWindow.open(map,pp);
 })(s,pos);
 map.add(marker);markers.push(marker);
 }
-// 驾车路线（沿公路）
+
+// 绘制路线
 if(stops.length<2)return;
 var coords=[];
 for(var i=0;i<stops.length;i++)coords.push([stops[i].lon,stops[i].lat]);
 
-try{
-AMap.plugin('AMap.Driving',function(){
+// 如果驾车插件可用，使用导航路线
+if(drivingAvailable===true){
 try{
 var origin=new AMap.LngLat(coords[0][0],coords[0][1]);
 var dest=new AMap.LngLat(coords[coords.length-1][0],coords[coords.length-1][1]);
 var waypoints=[];
-for(var i=1;i<coords.length-1;i++)waypoints.push(new AMap.LngLat(coords[i][0],coords[i][1]));
+for(var i=1;i<coords.length-1;i++){
+waypoints.push(new AMap.LngLat(coords[i][0],coords[i][1]));
+}
 var driving=new AMap.Driving({map:null,hideMarkers:true,autoFitView:false});
 driving.search(origin,dest,{waypoints:waypoints},function(status,result){
 var res=(typeof status==='object'&&status&&status.routes)?status:result;
-if(!res||!res.routes||!res.routes[0])return;
+if(res&&res.routes&&res.routes[0]){
 var path=[];
-res.routes[0].steps.forEach(function(step){if(step.path)path=path.concat(step.path);});
+res.routes[0].steps.forEach(function(step){
+if(step.path)path=path.concat(step.path);
+});
 if(path.length>1){
-var pl=new AMap.Polyline({path:path,strokeColor:color,strokeWeight:5,strokeOpacity:0.75,lineJoin:"round",lineCap:"round",showDir:true});
+var pl=new AMap.Polyline({
+path:path,strokeColor:color,strokeWeight:5,strokeOpacity:0.75,
+lineJoin:"round",lineCap:"round",showDir:true
+});
 map.add(pl);polylines.push(pl);
 }
+}else{
+// 导航失败，降级为直线
+drawStraightLine(coords,color);
+}
 });
-}catch(e){console.log('Driving error:',e);}
+}catch(e){
+console.log('Driving search error:',e);
+drawStraightLine(coords,color);
+}
+}else{
+// 驾车插件不可用，使用直线
+drawStraightLine(coords,color);
+}
+}
+
+/* ====== 降级方案：绘制直线 ====== */
+function drawStraightLine(coords,color){
+if(coords.length>1){
+var pl=new AMap.Polyline({
+path:coords,strokeColor:color,strokeWeight:4,strokeOpacity:0.6,
+lineJoin:"round",lineCap:"round",showDir:true,strokeStyle:"dashed"
 });
-}catch(e){console.log('Plugin error:',e);}
+map.add(pl);polylines.push(pl);
+}
 }
 
 /* ====== 切换路线 ====== */
@@ -211,9 +261,7 @@ c.innerHTML=h;
 /* ====== 单条路线 ====== */
 function renderRoute(id){
 var R=ROUTES[id];
-// 先渲染内容（同步）
 renderContent(R);
-// 再渲染地图标记和路线
 R.days_data.forEach(function(day){renderSegment(day.stops,day.d,R.color,R.tag,0);});
 setTimeout(function(){map.setFitView(null,false,[60,60,60,60],9);},800);
 }

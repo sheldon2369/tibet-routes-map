@@ -19,7 +19,11 @@ body{font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","SF Pro Text"
 .route-tab.tab-b.active{background:var(--route-b);color:#fff;box-shadow:0 2px 12px rgba(212,175,55,0.3)}
 .route-tab.tab-cmp{background:rgba(100,100,100,0.08);color:#555}
 .route-tab.tab-cmp.active{background:#333;color:#fff;box-shadow:0 2px 12px rgba(0,0,0,0.2)}
-#map{width:100%;height:50vh;margin-top:56px;position:relative;z-index:1}
+.route-images{margin-top:56px;padding:12px;background:var(--bg-surface);text-align:center}
+.route-images img{max-width:100%;height:auto;border-radius:12px;box-shadow:0 2px 12px rgba(0,0,0,0.1);display:none}
+.route-images img.active{display:block}
+.route-images .img-title{font-size:14px;font-weight:600;color:var(--text-secondary);margin-bottom:8px}
+#map{width:100%;height:50vh;position:relative;z-index:1}
 .content{max-width:900px;margin:0 auto;padding:24px 16px 80px}
 .route-banner{background:var(--bg-surface);border-radius:var(--radius);padding:28px;box-shadow:var(--shadow);margin-bottom:24px}
 .route-banner .tag{display:inline-block;padding:4px 14px;border-radius:12px;font-size:13px;font-weight:700;margin-bottom:10px;color:#fff}
@@ -87,6 +91,12 @@ body{font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","SF Pro Text"
 <button class="route-tab tab-cmp" onclick="switchRoute('CMP')">对比</button>
 </div>
 </nav>
+<div id="route-images" class="route-images">
+<div class="img-title">📍 路线示意图（沿实际公路绘制）</div>
+<img id="img-a" src="route_a.png" alt="A线路线图" class="active">
+<img id="img-b" src="route_b.png" alt="B线路线图">
+<img id="img-cmp" src="route_compare.png" alt="AB线对比图">
+</div>
 <div id="map"></div>
 <div class="content" id="content"></div>
 <div class="footer">地图：© 高德地图<br>路线沿实际公路绘制 · 数据更新于 2026年8月</div>
@@ -214,16 +224,20 @@ function switchRoute(id){
 document.querySelectorAll('.route-tab').forEach(function(t){t.classList.remove('active');});
 clearOverlays();
 document.getElementById('content').innerHTML='';
+// 切换路线图
+document.querySelectorAll('.route-images img').forEach(function(img){img.classList.remove('active');});
 if(id==='CMP'){
 currentRoute='CMP';
 document.querySelector('.tab-cmp').classList.add('active');
+document.getElementById('img-cmp').classList.add('active');
 renderCompare();
 }else{
 currentRoute=id;
 document.querySelector('.tab-'+id.toLowerCase()).classList.add('active');
+document.getElementById('img-'+id.toLowerCase()).classList.add('active');
 renderRoute(id);
 }
-window.scrollTo({top:document.getElementById('map').offsetTop+document.getElementById('map').offsetHeight-56,behavior:'smooth'});
+window.scrollTo({top:document.getElementById('route-images').offsetTop,behavior:'smooth'});
 }
 
 /* ====== 对比模式 ====== */

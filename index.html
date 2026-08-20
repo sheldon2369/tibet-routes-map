@@ -17,6 +17,8 @@ body{font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","SF Pro Text"
 .route-tab.tab-a.active{background:var(--route-a);color:#fff;box-shadow:0 2px 12px rgba(0,102,204,0.3)}
 .route-tab.tab-b{background:rgba(212,175,55,0.1);color:var(--route-b)}
 .route-tab.tab-b.active{background:var(--route-b);color:#fff;box-shadow:0 2px 12px rgba(212,175,55,0.3)}
+.route-tab.tab-cmp{background:rgba(100,100,100,0.08);color:#555}
+.route-tab.tab-cmp.active{background:#333;color:#fff;box-shadow:0 2px 12px rgba(0,0,0,0.2)}
 #map{width:100%;height:50vh;margin-top:56px;position:relative;z-index:1}
 .content{max-width:900px;margin:0 auto;padding:24px 16px 80px}
 .route-banner{background:var(--bg-surface);border-radius:var(--radius);padding:28px;box-shadow:var(--shadow);margin-bottom:24px}
@@ -83,6 +85,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","SF Pro Text"
 <div class="route-tabs">
 <button class="route-tab tab-a active" onclick="switchRoute('A')">A线</button>
 <button class="route-tab tab-b" onclick="switchRoute('B')">B线</button>
+<button class="route-tab tab-cmp" onclick="switchRoute('CMP')">对比</button>
 </div>
 </nav>
 <div id="map"></div>
@@ -187,11 +190,68 @@ renderRoute('A');
 }
 
 function switchRoute(id){
-currentRoute=id;
 document.querySelectorAll('.route-tab').forEach(t=>{t.classList.remove('active');});
+if(id==='CMP'){
+document.querySelector('.tab-cmp').classList.add('active');
+currentRoute='CMP';
+renderCompare();
+}else{
+currentRoute=id;
 document.querySelector('.tab-'+id.toLowerCase()).classList.add('active');
 renderRoute(id);
+}
 window.scrollTo({top:document.getElementById('map').offsetTop+document.getElementById('map').offsetHeight-56,behavior:'smooth'});
+}
+
+function renderCompare(){
+markers.forEach(m=>map.remove(m));markers=[];
+document.querySelectorAll('.day-card').forEach(c=>c.remove());
+
+const polylines=[];
+['A','B'].forEach(rid=>{
+const R=ROUTES[rid];const seen={};
+R.days_data.forEach(day=>{
+day.stops.forEach(s=>{
+const key=rid+s.n+s.lat;
+if(seen[key])return;seen[key]=1;
+const pos=[s.lon,s.lat];
+const marker=new AMap.Marker({position:pos,
+content:`<div style="width:14px;height:14px;border-radius:50%;background:${R.color};border:2.5px solid #fff;box-shadow:0 2px 8px rgba(0,0,0,0.3);"></div>`,
+offset:new AMap.Pixel(-7,-7),extData:s});
+marker.on("click",function(){
+const amapUrl=`https://uri.amap.com/marker?position=${s.lon},${s.lat}&name=${encodeURIComponent(s.n)}&coordinate=gaode&callnative=1`;
+infoWindow.setContent(`<div style="padding:10px 14px;min-width:160px"><div style="font-weight:700;font-size:15px;color:${R.color}">${R.tag}</div><div style="font-weight:700;font-size:14px;margin-top:2px">${s.n}</div>${s.desc?`<div style="color:#86868B;font-size:12px;margin:4px 0 8px">${s.desc}</div>`:''}<a href="${amapUrl}" target="_blank" style="display:inline-block;padding:4px 12px;border-radius:14px;background:${R.color};color:#fff;font-size:12px;font-weight:600;text-decoration:none"> 导航到此</a></div>`);
+infoWindow.open(map,pos);
+});
+map.add(marker);markers.push(marker);
+});
+});
+R.days_data.forEach(day=>{
+const dayCoords=day.stops.map(s=>[s.lon,s.lat]);
+if(dayCoords.length>1){
+const pl=new AMap.Polyline({path:dayCoords,strokeColor:R.color,strokeWeight:4,strokeOpacity:0.7,lineJoin:"round",lineCap:"round",showDir:true});
+map.add(pl);polylines.push(pl);
+}
+});
+});
+map.setFitView(null,false,[80,80,80,80],9);
+
+// Render both route banners side by side
+const c=document.getElementById('content');
+let h='';
+['A','B'].forEach(rid=>{
+const R=ROUTES[rid];
+const tagClass=R.color==='#0066CC'?'tag-a':'tag-b';
+h+=`<div class="route-banner fade-in">
+<span class="tag ${tagClass}">${R.tag}</span>
+<h1>${R.name}</h1>
+<p class="sub">${R.days}天环游，总里程${R.totalKm}km，总车程${R.totalH}h</p>
+<div class="stats">
+<div class="stat"><div class="stat-label">总里程</div><div class="stat-value" style="color:${R.color}">${R.totalKm}km</div></div>
+<div class="stat"><div class="stat-label">总车程</div><div class="stat-value" style="color:${R.color}">${R.totalH}h</div></div>
+</div></div>`;
+});
+c.innerHTML=h;
 }
 
 function renderRoute(id){

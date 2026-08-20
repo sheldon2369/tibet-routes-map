@@ -90,7 +90,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","SF Pro Text"
 <div id="map"></div>
 <div class="content" id="content"></div>
 <div class="footer">地图：© 高德地图<br>路线沿实际公路绘制 · 数据更新于 2026年8月</div>
-<script src="https://webapi.amap.com/maps?v=2.0&key=c69b99057ab90a4de0033f856492385c"></script>
+<script src="https://webapi.amap.com/maps?v=2.0&key=c69b99057ab90a4de0033f856492385c&plugin=AMap.Driving"></script>
 <script>
 const ROUTES={
 A:{
@@ -118,32 +118,11 @@ days_data:[
 
 let map,currentRoute='A',infoWindow=null;
 let markers=[],polylines=[];
-let drivingAvailable=null; // null=未检测, true/false=检测结果
 
 function initMap(){
 map=new AMap.Map("map",{zoom:5,center:[91,30.5],viewMode:"2D",resizeEnable:true});
 infoWindow=new AMap.InfoWindow({offset:new AMap.Pixel(0,-30),closeWhenClickMap:true});
-// 检测驾车路线插件是否可用
-checkDrivingPlugin(function(available){
-drivingAvailable=available;
-console.log('Driving plugin available:',available);
 renderRoute('A');
-});
-}
-
-function checkDrivingPlugin(callback){
-try{
-if(typeof AMap==='undefined'||!AMap.Driving){
-callback(false);
-return;
-}
-// 尝试创建一个Driving实例来验证
-var testDriving=new AMap.Driving({map:null});
-callback(true);
-}catch(e){
-console.log('Driving plugin check failed:',e);
-callback(false);
-}
 }
 
 function clearOverlays(){
@@ -171,14 +150,11 @@ infoWindow.open(map,pp);
 map.add(marker);markers.push(marker);
 }
 
-// 绘制路线
+// 绘制路线（沿公路导航路线）
 if(stops.length<2)return;
 var coords=[];
 for(var i=0;i<stops.length;i++)coords.push([stops[i].lon,stops[i].lat]);
 
-// 如果驾车插件可用，使用导航路线
-if(drivingAvailable===true){
-try{
 var origin=new AMap.LngLat(coords[0][0],coords[0][1]);
 var dest=new AMap.LngLat(coords[coords.length-1][0],coords[coords.length-1][1]);
 var waypoints=[];
@@ -187,40 +163,47 @@ waypoints.push(new AMap.LngLat(coords[i][0],coords[i][1]));
 }
 var driving=new AMap.Driving({map:null,hideMarkers:true,autoFitView:false});
 driving.search(origin,dest,{waypoints:waypoints},function(status,result){
-var res=(typeof status==='object'&&status&&status.routes)?status:result;
-if(res&&res.routes&&res.routes[0]){
+// AMap 2.0 callback: (status, result) or (result)
+var res;
+if(typeof status==='string'){
+// status是字符串（如"complete"/"error"）
+if(status==='complete'&&result&&result.routes&&result.routes[0]){
+res=result;
+}else{
+// 导航失败，画直线兜底
+drawStraightLine(coords,color);
+return;
+}
+}else if(status&&status.routes){
+res=status;
+}else if(result&&result.routes){
+res=result;
+}else{
+drawStraightLine(coords,color);
+return;
+}
 var path=[];
 res.routes[0].steps.forEach(function(step){
 if(step.path)path=path.concat(step.path);
 });
 if(path.length>1){
 var pl=new AMap.Polyline({
-path:path,strokeColor:color,strokeWeight:5,strokeOpacity:0.75,
+path:path,strokeColor:color,strokeWeight:5,strokeOpacity:0.8,
 lineJoin:"round",lineCap:"round",showDir:true
 });
 map.add(pl);polylines.push(pl);
-}
 }else{
-// 导航失败，降级为直线
 drawStraightLine(coords,color);
 }
 });
-}catch(e){
-console.log('Driving search error:',e);
-drawStraightLine(coords,color);
-}
-}else{
-// 驾车插件不可用，使用直线
-drawStraightLine(coords,color);
-}
 }
 
-/* ====== 降级方案：绘制直线 ====== */
+/* ====== 降级：直线 ====== */
 function drawStraightLine(coords,color){
 if(coords.length>1){
 var pl=new AMap.Polyline({
 path:coords,strokeColor:color,strokeWeight:4,strokeOpacity:0.6,
-lineJoin:"round",lineCap:"round",showDir:true,strokeStyle:"dashed"
+lineJoin:"round",lineCap:"round",showDir:true
 });
 map.add(pl);polylines.push(pl);
 }

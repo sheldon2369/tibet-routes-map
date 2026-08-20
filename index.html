@@ -23,7 +23,6 @@ body{font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","SF Pro Text"
 .route-images img{max-width:100%;height:auto;border-radius:12px;box-shadow:0 2px 12px rgba(0,0,0,0.1);display:none}
 .route-images img.active{display:block}
 .route-images .img-title{font-size:14px;font-weight:600;color:var(--text-secondary);margin-bottom:8px}
-#map{width:100%;height:50vh;position:relative;z-index:1}
 .content{max-width:900px;margin:0 auto;padding:24px 16px 80px}
 .route-banner{background:var(--bg-surface);border-radius:var(--radius);padding:28px;box-shadow:var(--shadow);margin-bottom:24px}
 .route-banner .tag{display:inline-block;padding:4px 14px;border-radius:12px;font-size:13px;font-weight:700;margin-bottom:10px;color:#fff}
@@ -64,7 +63,6 @@ body{font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","SF Pro Text"
 @media(max-width:768px){
 .nav{height:50px;padding:0 10px;gap:6px}
 .nav-brand{font-size:14px}
-#map{height:40vh;margin-top:50px}
 .route-banner{padding:20px}
 .route-banner h1{font-size:20px}
 .stats{gap:8px}
@@ -97,10 +95,8 @@ body{font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","SF Pro Text"
 <img id="img-b" src="route_b.png" alt="B线路线图">
 <img id="img-cmp" src="route_compare.png" alt="AB线对比图">
 </div>
-<div id="map"></div>
 <div class="content" id="content"></div>
-<div class="footer">地图：© 高德地图<br>路线沿实际公路绘制 · 数据更新于 2026年8月</div>
-<script src="https://webapi.amap.com/maps?v=2.0&key=c69b99057ab90a4de0033f856492385c&plugin=AMap.Driving"></script>
+<div class="footer">路线沿实际公路绘制 · 数据更新于 2026年8月</div>
 <script>
 const ROUTES={
 A:{
@@ -126,105 +122,11 @@ days_data:[
 }
 };
 
-let map,currentRoute='A',infoWindow=null;
-let markers=[],polylines=[];
+let currentRoute='A';
 
-function initMap(){
-map=new AMap.Map("map",{zoom:5,center:[91,30.5],viewMode:"2D",resizeEnable:true});
-infoWindow=new AMap.InfoWindow({offset:new AMap.Pixel(0,-30),closeWhenClickMap:true});
-renderRoute('A');
-}
-
-function clearOverlays(){
-markers.forEach(m=>map.remove(m));markers=[];
-polylines.forEach(p=>map.remove(p));polylines=[];
-}
-
-/* ====== 绘制一段行程的路线 + 标记点 ====== */
-function renderSegment(stops,dayLabel,color,routeTag,mOffset){
-if(!stops||!stops.length)return;
-
-// 标记点（带D编号）
-for(var i=0;i<stops.length;i++){
-var s=stops[i];
-var pos=[s.lon+(mOffset||0),s.lat];
-var html='<div style="background:'+color+';color:#fff;padding:2px 8px;border-radius:12px;font-size:11px;font-weight:700;white-space:nowrap;border:2px solid #fff;box-shadow:0 2px 8px rgba(0,0,0,0.3);line-height:1.5">'+dayLabel+' '+s.n+'</div>';
-var marker=new AMap.Marker({position:pos,content:html,offset:new AMap.Pixel(-40,-15),extData:s});
-(function(ss,pp){
-marker.on("click",function(){
-var url='https://uri.amap.com/marker?position='+ss.lon+','+ss.lat+'&name='+encodeURIComponent(ss.n)+'&coordinate=gaode&callnative=1';
-infoWindow.setContent('<div style="padding:10px 14px;min-width:160px"><div style="font-weight:700;font-size:12px;color:'+color+'">'+routeTag+'</div><div style="font-weight:700;font-size:15px;margin-top:2px">'+ss.n+'</div>'+(ss.desc?'<div style="color:#86868B;font-size:12px;margin:4px 0 8px">'+ss.desc+'</div>':'')+'<a href="'+url+'" target="_blank" style="display:inline-block;padding:4px 12px;border-radius:14px;background:'+color+';color:#fff;font-size:12px;font-weight:600;text-decoration:none">📍 导航到此</a></div>');
-infoWindow.open(map,pp);
-});
-})(s,pos);
-map.add(marker);markers.push(marker);
-}
-
-// 绘制路线（沿公路导航路线）
-if(stops.length<2)return;
-var coords=[];
-for(var i=0;i<stops.length;i++)coords.push([stops[i].lon,stops[i].lat]);
-
-var origin=new AMap.LngLat(coords[0][0],coords[0][1]);
-var dest=new AMap.LngLat(coords[coords.length-1][0],coords[coords.length-1][1]);
-var waypoints=[];
-for(var i=1;i<coords.length-1;i++){
-waypoints.push(new AMap.LngLat(coords[i][0],coords[i][1]));
-}
-var driving=new AMap.Driving({map:null,hideMarkers:true,autoFitView:false});
-driving.search(origin,dest,{waypoints:waypoints},function(status,result){
-// AMap 2.0 callback: (status, result) or (result)
-var res;
-if(typeof status==='string'){
-// status是字符串（如"complete"/"error"）
-if(status==='complete'&&result&&result.routes&&result.routes[0]){
-res=result;
-}else{
-// 导航失败，画直线兜底
-drawStraightLine(coords,color);
-return;
-}
-}else if(status&&status.routes){
-res=status;
-}else if(result&&result.routes){
-res=result;
-}else{
-drawStraightLine(coords,color);
-return;
-}
-var path=[];
-res.routes[0].steps.forEach(function(step){
-if(step.path)path=path.concat(step.path);
-});
-if(path.length>1){
-var pl=new AMap.Polyline({
-path:path,strokeColor:color,strokeWeight:5,strokeOpacity:0.8,
-lineJoin:"round",lineCap:"round",showDir:true
-});
-map.add(pl);polylines.push(pl);
-}else{
-drawStraightLine(coords,color);
-}
-});
-}
-
-/* ====== 降级：直线 ====== */
-function drawStraightLine(coords,color){
-if(coords.length>1){
-var pl=new AMap.Polyline({
-path:coords,strokeColor:color,strokeWeight:4,strokeOpacity:0.6,
-lineJoin:"round",lineCap:"round",showDir:true
-});
-map.add(pl);polylines.push(pl);
-}
-}
-
-/* ====== 切换路线 ====== */
 function switchRoute(id){
 document.querySelectorAll('.route-tab').forEach(function(t){t.classList.remove('active');});
-clearOverlays();
 document.getElementById('content').innerHTML='';
-// 切换路线图
 document.querySelectorAll('.route-images img').forEach(function(img){img.classList.remove('active');});
 if(id==='CMP'){
 currentRoute='CMP';
@@ -240,11 +142,7 @@ renderRoute(id);
 window.scrollTo({top:document.getElementById('route-images').offsetTop,behavior:'smooth'});
 }
 
-/* ====== 对比模式 ====== */
 function renderCompare(){
-ROUTES.A.days_data.forEach(function(day){renderSegment(day.stops,day.d,ROUTES.A.color,ROUTES.A.tag,0);});
-ROUTES.B.days_data.forEach(function(day){renderSegment(day.stops,day.d,ROUTES.B.color,ROUTES.B.tag,0.04);});
-setTimeout(function(){map.setFitView(null,false,[80,80,80,80],9);},800);
 var c=document.getElementById('content');
 var h='';
 ['A','B'].forEach(function(rid){
@@ -255,15 +153,11 @@ h+='<div class="route-banner fade-in"><span class="tag '+tc+'">'+R.tag+'</span><
 c.innerHTML=h;
 }
 
-/* ====== 单条路线 ====== */
 function renderRoute(id){
 var R=ROUTES[id];
 renderContent(R);
-R.days_data.forEach(function(day){renderSegment(day.stops,day.d,R.color,R.tag,0);});
-setTimeout(function(){map.setFitView(null,false,[60,60,60,60],9);},800);
 }
 
-/* ====== 行程卡片 ====== */
 function renderContent(R){
 var c=document.getElementById('content');
 var tc=R.color==='#0066CC'?'tag-a':'tag-b';
@@ -273,7 +167,7 @@ R.days_data.forEach(function(day,di){
 var fs=day.stops[0];
 var nu='https://uri.amap.com/marker?position='+fs.lon+','+fs.lat+'&name='+encodeURIComponent(fs.n)+'&coordinate=gaode&callnative=1';
 h+='<div class="day-card"><div class="day-marker"><div class="day-num" style="background:'+R.color+'">'+day.d+'</div><div class="day-line" style="background:'+R.color+'"></div></div>';
-h+='<div class="day-body" style="color:'+R.color+'" onclick="highlightDay(this,\''+R.tag+'\','+di+')">';
+h+='<div class="day-body" style="color:'+R.color+'" onclick="highlightDay(this)">';
 h+='<div class="stops-row">';
 day.stops.forEach(function(s,si){
 if(si>0)h+='<span class="stop-arrow">→</span>';
@@ -304,20 +198,12 @@ document.querySelectorAll('.detail-toggle').forEach(function(b){b.textContent='�
 if(!isOpen){panel.classList.add('open');btn.textContent='📖 收起 ▴';}
 }
 
-function highlightDay(el,routeTag,idx){
+function highlightDay(el){
 document.querySelectorAll('.day-body').forEach(function(c){c.classList.remove('highlighted');});
 el.classList.add('highlighted');
-var R=ROUTES[routeTag==='A线'?'A':'B'];
-var day=R.days_data[idx];
-if(day&&day.stops.length){
-var mid=Math.floor(day.stops.length/2);
-var s=day.stops[mid];
-map.setCenter([s.lon,s.lat]);
-map.setZoom(8);
-}
 }
 
-initMap();
+renderRoute('A');
 </script>
 </body>
 </html>

@@ -91,92 +91,27 @@ body{font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","SF Pro Text"
 <div class="content" id="content"></div>
 <div class="footer">地图：© 高德地图<br>路线沿实际公路绘制 · 数据更新于 2026年8月</div>
 <script src="https://webapi.amap.com/maps?v=2.0&key=c69b99057ab90a4de0033f856492385c"></script>
-<script src="https://webapi.amap.com/plugins/AMap.Driving/AMap.Driving.js"></script>
 <script>
 const ROUTES={
 A:{
 name:'林芝·新措·羊湖·纳木错',tag:'A线',color:'#0066CC',
 days:5,totalKm:1860,totalH:26,
 days_data:[
-{d:'D1',dist:'350km',time:'4h',alt:'2700m',
-stops:[
-{n:'拉萨',lat:29.65,lon:91.11},
-{n:'巴松措',lat:30.00,lon:93.91,desc:'人间绿宝石'},
-{n:'新措',lat:30.02,lon:93.96,desc:'开最颠簸的路，走最平顺的徒步'},
-{n:'结巴村',lat:30.01,lon:93.88}
-]},
-{d:'D2',dist:'250km',time:'4h',alt:'2700m',
-stops:[
-{n:'结巴村',lat:30.01,lon:93.88},
-{n:'色季拉山口',lat:29.73,lon:94.07,desc:'日照金山绝佳机位'},
-{n:'鲁朗林海',lat:29.78,lon:94.72,desc:'天然牧场'},
-{n:'雅鲁藏布江大峡谷',lat:29.62,lon:94.93,desc:'人类最后的秘境'},
-{n:'索松村',lat:29.97,lon:94.85}
-]},
-{d:'D3',dist:'480km',time:'6h',alt:'3200m',
-stops:[
-{n:'索松村',lat:29.97,lon:94.85,desc:'观南迦巴瓦峰日出'},
-{n:'佛掌沙丘',lat:29.50,lon:94.50,desc:'雪山与沙漠融合'},
-{n:'尼洋河风光',lat:29.50,lon:93.80},
-{n:'拉萨',lat:29.65,lon:91.11}
-]},
-{d:'D4',dist:'350km',time:'6h',alt:'3200m',
-stops:[
-{n:'拉萨',lat:29.65,lon:91.11},
-{n:'羊卓雍措',lat:28.93,lon:90.67,desc:'西藏三大圣湖之一'},
-{n:'卡若拉冰川',lat:28.78,lon:90.25,desc:'西藏三大大陆型冰川之一'},
-{n:'拉萨',lat:29.65,lon:91.11}
-]},
-{d:'D5',dist:'430km',time:'6h',alt:'3200m',
-stops:[
-{n:'拉萨',lat:29.65,lon:91.11},
-{n:'纳木错扎西半岛',lat:30.70,lon:90.50,desc:'距离天堂最近的湖泊'},
-{n:'念青唐古拉山',lat:30.47,lon:90.70,desc:'远看是山，近看是川'},
-{n:'拉萨',lat:29.65,lon:91.11}
-]}
+{d:'D1',dist:'350km',time:'4h',alt:'2700m',stops:[{n:'拉萨',lat:29.65,lon:91.11},{n:'巴松措',lat:30.00,lon:93.91,desc:'人间绿宝石'},{n:'新措',lat:30.02,lon:93.96,desc:'开最颠簸的路，走最平顺的徒步'},{n:'结巴村',lat:30.01,lon:93.88}]},
+{d:'D2',dist:'250km',time:'4h',alt:'2700m',stops:[{n:'结巴村',lat:30.01,lon:93.88},{n:'色季拉山口',lat:29.73,lon:94.07,desc:'日照金山绝佳机位'},{n:'鲁朗林海',lat:29.78,lon:94.72,desc:'天然牧场'},{n:'雅鲁藏布江大峡谷',lat:29.62,lon:94.93,desc:'人类最后的秘境'},{n:'索松村',lat:29.97,lon:94.85}]},
+{d:'D3',dist:'480km',time:'6h',alt:'3200m',stops:[{n:'索松村',lat:29.97,lon:94.85,desc:'观南迦巴瓦峰日出'},{n:'佛掌沙丘',lat:29.50,lon:94.50,desc:'雪山与沙漠融合'},{n:'尼洋河风光',lat:29.50,lon:93.80},{n:'拉萨',lat:29.65,lon:91.11}]},
+{d:'D4',dist:'350km',time:'6h',alt:'3200m',stops:[{n:'拉萨',lat:29.65,lon:91.11},{n:'羊卓雍措',lat:28.93,lon:90.67,desc:'西藏三大圣湖之一'},{n:'卡若拉冰川',lat:28.78,lon:90.25,desc:'西藏三大大陆型冰川之一'},{n:'拉萨',lat:29.65,lon:91.11}]},
+{d:'D5',dist:'430km',time:'6h',alt:'3200m',stops:[{n:'拉萨',lat:29.65,lon:91.11},{n:'纳木错扎西半岛',lat:30.70,lon:90.50,desc:'距离天堂最近的湖泊'},{n:'念青唐古拉山',lat:30.47,lon:90.70,desc:'远看是山，近看是川'},{n:'拉萨',lat:29.65,lon:91.11}]}
 ]},
 B:{
 name:'林芝·羊湖·藏北草原·纳木错',tag:'B线',color:'#D4AF37',
 days:5,totalKm:2060,totalH:29,
 days_data:[
-{d:'D1',dist:'480km',time:'6h',alt:'2700m',
-stops:[
-{n:'拉萨',lat:29.65,lon:91.11},
-{n:'巴松措',lat:30.00,lon:93.91,desc:'人间绿宝石'},
-{n:'雅鲁藏布江大峡谷',lat:29.62,lon:94.93,desc:'人类最后的秘境'},
-{n:'索松村',lat:29.97,lon:94.85}
-]},
-{d:'D2',dist:'480km',time:'6h',alt:'2700m',
-stops:[
-{n:'索松村',lat:29.97,lon:94.85,desc:'观南迦巴瓦峰日出'},
-{n:'佛掌沙丘',lat:29.50,lon:94.50,desc:'雪山与沙漠融合'},
-{n:'尼洋河风光',lat:29.50,lon:93.80},
-{n:'拉萨',lat:29.65,lon:91.11}
-]},
-{d:'D3',dist:'280km',time:'4h',alt:'3800m',
-stops:[
-{n:'拉萨',lat:29.65,lon:91.11},
-{n:'羊卓雍措',lat:28.93,lon:90.67,desc:'西藏三大圣湖之一'},
-{n:'卡若拉冰川',lat:28.78,lon:90.25,desc:'西藏三大大陆型冰川之一'},
-{n:'满拉水库',lat:28.92,lon:88.90},
-{n:'日喀则',lat:29.27,lon:88.88}
-]},
-{d:'D4',dist:'500km',time:'7h',alt:'4200m',
-stops:[
-{n:'日喀则',lat:29.27,lon:88.88},
-{n:'远观杰岗日神山',lat:30.20,lon:89.30,desc:'公路旅行大片'},
-{n:'藏北草原',lat:31.50,lon:90.00,desc:'邂逅各种野生动物'},
-{n:'色林错',lat:31.10,lon:88.60,desc:'西藏最大的湖泊'},
-{n:'班戈',lat:31.37,lon:90.01}
-]},
-{d:'D5',dist:'400km',time:'6h',alt:'3200m',
-stops:[
-{n:'班戈',lat:31.37,lon:90.01},
-{n:'巴木错',lat:30.80,lon:90.50,desc:'勇士湖&姐妹湖'},
-{n:'三生石&圣象天门',lat:30.85,lon:90.85,desc:'永远的天湖，许下爱的诺言'},
-{n:'念青唐古拉山',lat:30.47,lon:90.70,desc:'远看是山，近看是川'},
-{n:'拉萨',lat:29.65,lon:91.11}
-]}
+{d:'D1',dist:'480km',time:'6h',alt:'2700m',stops:[{n:'拉萨',lat:29.65,lon:91.11},{n:'巴松措',lat:30.00,lon:93.91,desc:'人间绿宝石'},{n:'雅鲁藏布江大峡谷',lat:29.62,lon:94.93,desc:'人类最后的秘境'},{n:'索松村',lat:29.97,lon:94.85}]},
+{d:'D2',dist:'480km',time:'6h',alt:'2700m',stops:[{n:'索松村',lat:29.97,lon:94.85,desc:'观南迦巴瓦峰日出'},{n:'佛掌沙丘',lat:29.50,lon:94.50,desc:'雪山与沙漠融合'},{n:'尼洋河风光',lat:29.50,lon:93.80},{n:'拉萨',lat:29.65,lon:91.11}]},
+{d:'D3',dist:'280km',time:'4h',alt:'3800m',stops:[{n:'拉萨',lat:29.65,lon:91.11},{n:'羊卓雍措',lat:28.93,lon:90.67,desc:'西藏三大圣湖之一'},{n:'卡若拉冰川',lat:28.78,lon:90.25,desc:'西藏三大大陆型冰川之一'},{n:'满拉水库',lat:28.92,lon:88.90},{n:'日喀则',lat:29.27,lon:88.88}]},
+{d:'D4',dist:'500km',time:'7h',alt:'4200m',stops:[{n:'日喀则',lat:29.27,lon:88.88},{n:'远观杰岗日神山',lat:30.20,lon:89.30,desc:'公路旅行大片'},{n:'藏北草原',lat:31.50,lon:90.00,desc:'邂逅各种野生动物'},{n:'色林错',lat:31.10,lon:88.60,desc:'西藏最大的湖泊'},{n:'班戈',lat:31.37,lon:90.01}]},
+{d:'D5',dist:'400km',time:'6h',alt:'3200m',stops:[{n:'班戈',lat:31.37,lon:90.01},{n:'巴木错',lat:30.80,lon:90.50,desc:'勇士湖&姐妹湖'},{n:'三生石&圣象天门',lat:30.85,lon:90.85,desc:'永远的天湖，许下爱的诺言'},{n:'念青唐古拉山',lat:30.47,lon:90.70,desc:'远看是山，近看是川'},{n:'拉萨',lat:29.65,lon:91.11}]}
 ]
 }
 };
@@ -190,7 +125,6 @@ infoWindow=new AMap.InfoWindow({offset:new AMap.Pixel(0,-30),closeWhenClickMap:t
 renderRoute('A');
 }
 
-/* ====== 清理所有地图覆盖物 ====== */
 function clearOverlays(){
 markers.forEach(m=>map.remove(m));markers=[];
 polylines.forEach(p=>map.remove(p));polylines=[];
@@ -199,57 +133,47 @@ polylines.forEach(p=>map.remove(p));polylines=[];
 /* ====== 绘制一段行程的驾车路线 + 标记点 ====== */
 function renderSegment(stops,dayLabel,color,routeTag,mOffset){
 if(!stops||!stops.length)return;
-var seen={},i,s,key,pos,mx,html,marker;
-
 // 标记点（带D编号）
-for(i=0;i<stops.length;i++){
-s=stops[i];
-key=s.lat.toFixed(2)+','+s.lon.toFixed(2);
-mx=seen[key]?mOffset:0;
-if(seen[key]===undefined)seen[key]=0;
-seen[key]++;
-pos=[s.lon+mx,s.lat];
-html='<div style="background:'+color+';color:#fff;padding:2px 8px;border-radius:12px;font-size:11px;font-weight:700;white-space:nowrap;border:2px solid #fff;box-shadow:0 2px 8px rgba(0,0,0,0.3);line-height:1.5">'+dayLabel+' '+s.n+'</div>';
-marker=new AMap.Marker({position:pos,content:html,offset:new AMap.Pixel(-40,-15),extData:s});
-(function(ss,pp,tt,rr){
+for(var i=0;i<stops.length;i++){
+var s=stops[i];
+var pos=[s.lon+(mOffset||0),s.lat];
+var html='<div style="background:'+color+';color:#fff;padding:2px 8px;border-radius:12px;font-size:11px;font-weight:700;white-space:nowrap;border:2px solid #fff;box-shadow:0 2px 8px rgba(0,0,0,0.3);line-height:1.5">'+dayLabel+' '+s.n+'</div>';
+var marker=new AMap.Marker({position:pos,content:html,offset:new AMap.Pixel(-40,-15),extData:s});
+(function(ss,pp){
 marker.on("click",function(){
 var url='https://uri.amap.com/marker?position='+ss.lon+','+ss.lat+'&name='+encodeURIComponent(ss.n)+'&coordinate=gaode&callnative=1';
-var c=tt==='A线'?'#0066CC':'#D4AF37';
-infoWindow.setContent('<div style="padding:10px 14px;min-width:160px"><div style="font-weight:700;font-size:12px;color:'+c+'">'+tt+'</div><div style="font-weight:700;font-size:15px;margin-top:2px">'+ss.n+'</div>'+(ss.desc?'<div style="color:#86868B;font-size:12px;margin:4px 0 8px">'+ss.desc+'</div>':'')+'<a href="'+url+'" target="_blank" style="display:inline-block;padding:4px 12px;border-radius:14px;background:'+c+';color:#fff;font-size:12px;font-weight:600;text-decoration:none">📍 导航到此</a></div>');
+infoWindow.setContent('<div style="padding:10px 14px;min-width:160px"><div style="font-weight:700;font-size:12px;color:'+color+'">'+routeTag+'</div><div style="font-weight:700;font-size:15px;margin-top:2px">'+ss.n+'</div>'+(ss.desc?'<div style="color:#86868B;font-size:12px;margin:4px 0 8px">'+ss.desc+'</div>':'')+'<a href="'+url+'" target="_blank" style="display:inline-block;padding:4px 12px;border-radius:14px;background:'+color+';color:#fff;font-size:12px;font-weight:600;text-decoration:none">📍 导航到此</a></div>');
 infoWindow.open(map,pp);
 });
-})(s,pos,routeTag,routeTag);
+})(s,pos);
 map.add(marker);markers.push(marker);
 }
-
 // 驾车路线（沿公路）
+if(stops.length<2)return;
 var coords=[];
-for(i=0;i<stops.length;i++)coords.push([stops[i].lon,stops[i].lat]);
-if(coords.length<2)return;
+for(var i=0;i<stops.length;i++)coords.push([stops[i].lon,stops[i].lat]);
 
+try{
+AMap.plugin('AMap.Driving',function(){
+try{
 var origin=new AMap.LngLat(coords[0][0],coords[0][1]);
 var dest=new AMap.LngLat(coords[coords.length-1][0],coords[coords.length-1][1]);
 var waypoints=[];
-for(i=1;i<coords.length-1;i++){
-waypoints.push(new AMap.LngLat(coords[i][0],coords[i][1]));
-}
-
+for(var i=1;i<coords.length-1;i++)waypoints.push(new AMap.LngLat(coords[i][0],coords[i][1]));
 var driving=new AMap.Driving({map:null,hideMarkers:true,autoFitView:false});
 driving.search(origin,dest,{waypoints:waypoints},function(status,result){
 var res=(typeof status==='object'&&status&&status.routes)?status:result;
 if(!res||!res.routes||!res.routes[0])return;
 var path=[];
-res.routes[0].steps.forEach(function(step){
-if(step.path)path=path.concat(step.path);
-});
+res.routes[0].steps.forEach(function(step){if(step.path)path=path.concat(step.path);});
 if(path.length>1){
-var pl=new AMap.Polyline({
-path:path,strokeColor:color,strokeWeight:5,strokeOpacity:0.75,
-lineJoin:"round",lineCap:"round",showDir:true
-});
+var pl=new AMap.Polyline({path:path,strokeColor:color,strokeWeight:5,strokeOpacity:0.75,lineJoin:"round",lineCap:"round",showDir:true});
 map.add(pl);polylines.push(pl);
 }
 });
+}catch(e){console.log('Driving error:',e);}
+});
+}catch(e){console.log('Plugin error:',e);}
 }
 
 /* ====== 切换路线 ====== */
@@ -271,16 +195,9 @@ window.scrollTo({top:document.getElementById('map').offsetTop+document.getElemen
 
 /* ====== 对比模式 ====== */
 function renderCompare(){
-// A线
-ROUTES.A.days_data.forEach(function(day){
-renderSegment(day.stops,day.d,ROUTES.A.color,ROUTES.A.tag,0);
-});
-// B线（同位置标记偏移显示）
-ROUTES.B.days_data.forEach(function(day){
-renderSegment(day.stops,day.d,ROUTES.B.color,ROUTES.B.tag,0.04);
-});
+ROUTES.A.days_data.forEach(function(day){renderSegment(day.stops,day.d,ROUTES.A.color,ROUTES.A.tag,0);});
+ROUTES.B.days_data.forEach(function(day){renderSegment(day.stops,day.d,ROUTES.B.color,ROUTES.B.tag,0.04);});
 setTimeout(function(){map.setFitView(null,false,[80,80,80,80],9);},800);
-
 var c=document.getElementById('content');
 var h='';
 ['A','B'].forEach(function(rid){
@@ -294,11 +211,11 @@ c.innerHTML=h;
 /* ====== 单条路线 ====== */
 function renderRoute(id){
 var R=ROUTES[id];
-R.days_data.forEach(function(day){
-renderSegment(day.stops,day.d,R.color,R.tag,0);
-});
-setTimeout(function(){map.setFitView(null,false,[60,60,60,60],9);},800);
+// 先渲染内容（同步）
 renderContent(R);
+// 再渲染地图标记和路线
+R.days_data.forEach(function(day){renderSegment(day.stops,day.d,R.color,R.tag,0);});
+setTimeout(function(){map.setFitView(null,false,[60,60,60,60],9);},800);
 }
 
 /* ====== 行程卡片 ====== */

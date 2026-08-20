@@ -56,7 +56,6 @@ body{font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","SF Pro Text"
 .detail-item:last-child{margin-bottom:0}
 .detail-item-title{font-size:12px;font-weight:700;color:var(--text-primary);margin-bottom:4px;display:flex;align-items:center;gap:4px}
 .detail-item-text{font-size:12px;color:var(--text-secondary);line-height:1.6}
-.detail-item-text .price{color:#E63946;font-weight:600}
 .footer{text-align:center;padding:40px 16px;color:var(--text-secondary);font-size:13px;line-height:1.8}
 @media(max-width:768px){
 .nav{height:50px;padding:0 10px;gap:6px}
@@ -90,8 +89,9 @@ body{font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","SF Pro Text"
 </nav>
 <div id="map"></div>
 <div class="content" id="content"></div>
-<div class="footer">地图：© 高德地图<br>数据更新于 2026年8月</div>
+<div class="footer">地图：© 高德地图<br>路线沿实际公路绘制 · 数据更新于 2026年8月</div>
 <script src="https://webapi.amap.com/maps?v=2.0&key=c69b99057ab90a4de0033f856492385c"></script>
+<script src="https://webapi.amap.com/plugins/AMap.Driving/AMap.Driving.js"></script>
 <script>
 const ROUTES={
 A:{
@@ -181,7 +181,8 @@ stops:[
 }
 };
 
-let map,currentRoute='A',infoWindow=null,markers=[],polyline=null;
+let map,currentRoute='A',infoWindow=null;
+let markers=[],polylines=[];
 
 function initMap(){
 map=new AMap.Map("map",{zoom:5,center:[91,30.5],viewMode:"2D",resizeEnable:true});
@@ -189,11 +190,76 @@ infoWindow=new AMap.InfoWindow({offset:new AMap.Pixel(0,-30),closeWhenClickMap:t
 renderRoute('A');
 }
 
+/* ====== 清理所有地图覆盖物 ====== */
+function clearOverlays(){
+markers.forEach(m=>map.remove(m));markers=[];
+polylines.forEach(p=>map.remove(p));polylines=[];
+}
+
+/* ====== 绘制一段行程的驾车路线 + 标记点 ====== */
+function renderSegment(stops,dayLabel,color,routeTag,mOffset){
+if(!stops||!stops.length)return;
+var seen={},i,s,key,pos,mx,html,marker;
+
+// 标记点（带D编号）
+for(i=0;i<stops.length;i++){
+s=stops[i];
+key=s.lat.toFixed(2)+','+s.lon.toFixed(2);
+mx=seen[key]?mOffset:0;
+if(seen[key]===undefined)seen[key]=0;
+seen[key]++;
+pos=[s.lon+mx,s.lat];
+html='<div style="background:'+color+';color:#fff;padding:2px 8px;border-radius:12px;font-size:11px;font-weight:700;white-space:nowrap;border:2px solid #fff;box-shadow:0 2px 8px rgba(0,0,0,0.3);line-height:1.5">'+dayLabel+' '+s.n+'</div>';
+marker=new AMap.Marker({position:pos,content:html,offset:new AMap.Pixel(-40,-15),extData:s});
+(function(ss,pp,tt,rr){
+marker.on("click",function(){
+var url='https://uri.amap.com/marker?position='+ss.lon+','+ss.lat+'&name='+encodeURIComponent(ss.n)+'&coordinate=gaode&callnative=1';
+var c=tt==='A线'?'#0066CC':'#D4AF37';
+infoWindow.setContent('<div style="padding:10px 14px;min-width:160px"><div style="font-weight:700;font-size:12px;color:'+c+'">'+tt+'</div><div style="font-weight:700;font-size:15px;margin-top:2px">'+ss.n+'</div>'+(ss.desc?'<div style="color:#86868B;font-size:12px;margin:4px 0 8px">'+ss.desc+'</div>':'')+'<a href="'+url+'" target="_blank" style="display:inline-block;padding:4px 12px;border-radius:14px;background:'+c+';color:#fff;font-size:12px;font-weight:600;text-decoration:none">📍 导航到此</a></div>');
+infoWindow.open(map,pp);
+});
+})(s,pos,routeTag,routeTag);
+map.add(marker);markers.push(marker);
+}
+
+// 驾车路线（沿公路）
+var coords=[];
+for(i=0;i<stops.length;i++)coords.push([stops[i].lon,stops[i].lat]);
+if(coords.length<2)return;
+
+var origin=new AMap.LngLat(coords[0][0],coords[0][1]);
+var dest=new AMap.LngLat(coords[coords.length-1][0],coords[coords.length-1][1]);
+var waypoints=[];
+for(i=1;i<coords.length-1;i++){
+waypoints.push(new AMap.LngLat(coords[i][0],coords[i][1]));
+}
+
+var driving=new AMap.Driving({map:null,hideMarkers:true,autoFitView:false});
+driving.search(origin,dest,{waypoints:waypoints},function(status,result){
+var res=(typeof status==='object'&&status&&status.routes)?status:result;
+if(!res||!res.routes||!res.routes[0])return;
+var path=[];
+res.routes[0].steps.forEach(function(step){
+if(step.path)path=path.concat(step.path);
+});
+if(path.length>1){
+var pl=new AMap.Polyline({
+path:path,strokeColor:color,strokeWeight:5,strokeOpacity:0.75,
+lineJoin:"round",lineCap:"round",showDir:true
+});
+map.add(pl);polylines.push(pl);
+}
+});
+}
+
+/* ====== 切换路线 ====== */
 function switchRoute(id){
-document.querySelectorAll('.route-tab').forEach(t=>{t.classList.remove('active');});
+document.querySelectorAll('.route-tab').forEach(function(t){t.classList.remove('active');});
+clearOverlays();
+document.getElementById('content').innerHTML='';
 if(id==='CMP'){
-document.querySelector('.tab-cmp').classList.add('active');
 currentRoute='CMP';
+document.querySelector('.tab-cmp').classList.add('active');
 renderCompare();
 }else{
 currentRoute=id;
@@ -203,167 +269,87 @@ renderRoute(id);
 window.scrollTo({top:document.getElementById('map').offsetTop+document.getElementById('map').offsetHeight-56,behavior:'smooth'});
 }
 
+/* ====== 对比模式 ====== */
 function renderCompare(){
-markers.forEach(m=>map.remove(m));markers=[];
-document.querySelectorAll('.day-card').forEach(c=>c.remove());
+// A线
+ROUTES.A.days_data.forEach(function(day){
+renderSegment(day.stops,day.d,ROUTES.A.color,ROUTES.A.tag,0);
+});
+// B线（同位置标记偏移显示）
+ROUTES.B.days_data.forEach(function(day){
+renderSegment(day.stops,day.d,ROUTES.B.color,ROUTES.B.tag,0.04);
+});
+setTimeout(function(){map.setFitView(null,false,[80,80,80,80],9);},800);
 
-const polylines=[];
-['A','B'].forEach(rid=>{
-const R=ROUTES[rid];const seen={};
-R.days_data.forEach(day=>{
-day.stops.forEach(s=>{
-const key=rid+s.n+s.lat;
-if(seen[key])return;seen[key]=1;
-const pos=[s.lon,s.lat];
-const marker=new AMap.Marker({position:pos,
-content:`<div style="width:14px;height:14px;border-radius:50%;background:${R.color};border:2.5px solid #fff;box-shadow:0 2px 8px rgba(0,0,0,0.3);"></div>`,
-offset:new AMap.Pixel(-7,-7),extData:s});
-marker.on("click",function(){
-const amapUrl=`https://uri.amap.com/marker?position=${s.lon},${s.lat}&name=${encodeURIComponent(s.n)}&coordinate=gaode&callnative=1`;
-infoWindow.setContent(`<div style="padding:10px 14px;min-width:160px"><div style="font-weight:700;font-size:15px;color:${R.color}">${R.tag}</div><div style="font-weight:700;font-size:14px;margin-top:2px">${s.n}</div>${s.desc?`<div style="color:#86868B;font-size:12px;margin:4px 0 8px">${s.desc}</div>`:''}<a href="${amapUrl}" target="_blank" style="display:inline-block;padding:4px 12px;border-radius:14px;background:${R.color};color:#fff;font-size:12px;font-weight:600;text-decoration:none"> 导航到此</a></div>`);
-infoWindow.open(map,pos);
-});
-map.add(marker);markers.push(marker);
-});
-});
-R.days_data.forEach(day=>{
-const dayCoords=day.stops.map(s=>[s.lon,s.lat]);
-if(dayCoords.length>1){
-const pl=new AMap.Polyline({path:dayCoords,strokeColor:R.color,strokeWeight:4,strokeOpacity:0.7,lineJoin:"round",lineCap:"round",showDir:true});
-map.add(pl);polylines.push(pl);
-}
-});
-});
-map.setFitView(null,false,[80,80,80,80],9);
-
-// Render both route banners side by side
-const c=document.getElementById('content');
-let h='';
-['A','B'].forEach(rid=>{
-const R=ROUTES[rid];
-const tagClass=R.color==='#0066CC'?'tag-a':'tag-b';
-h+=`<div class="route-banner fade-in">
-<span class="tag ${tagClass}">${R.tag}</span>
-<h1>${R.name}</h1>
-<p class="sub">${R.days}天环游，总里程${R.totalKm}km，总车程${R.totalH}h</p>
-<div class="stats">
-<div class="stat"><div class="stat-label">总里程</div><div class="stat-value" style="color:${R.color}">${R.totalKm}km</div></div>
-<div class="stat"><div class="stat-label">总车程</div><div class="stat-value" style="color:${R.color}">${R.totalH}h</div></div>
-</div></div>`;
+var c=document.getElementById('content');
+var h='';
+['A','B'].forEach(function(rid){
+var R=ROUTES[rid];
+var tc=R.color==='#0066CC'?'tag-a':'tag-b';
+h+='<div class="route-banner fade-in"><span class="tag '+tc+'">'+R.tag+'</span><h1>'+R.name+'</h1><p class="sub">'+R.days+'天环游，总里程'+R.totalKm+'km，总车程'+R.totalH+'h</p><div class="stats"><div class="stat"><div class="stat-label">总里程</div><div class="stat-value" style="color:'+R.color+'">'+R.totalKm+'km</div></div><div class="stat"><div class="stat-label">总车程</div><div class="stat-value" style="color:'+R.color+'">'+R.totalH+'h</div></div></div></div>';
 });
 c.innerHTML=h;
 }
 
+/* ====== 单条路线 ====== */
 function renderRoute(id){
-const R=ROUTES[id];
-markers.forEach(m=>map.remove(m));markers=[];
-if(polyline){map.remove(polyline);polyline=null;}
-
-// Collect unique stops for map markers
-const coords=[];const seen={};
-R.days_data.forEach(day=>{
-day.stops.forEach(s=>{
-const key=s.n+s.lat;
-if(seen[key])return;seen[key]=1;
-const pos=[s.lon,s.lat];coords.push(pos);
-const marker=new AMap.Marker({position:pos,
-content:`<div style="width:14px;height:14px;border-radius:50%;background:${R.color};border:2.5px solid #fff;box-shadow:0 2px 8px rgba(0,0,0,0.3);"></div>`,
-offset:new AMap.Pixel(-7,-7),extData:s});
-marker.on("click",function(){
-const amapUrl=`https://uri.amap.com/marker?position=${s.lon},${s.lat}&name=${encodeURIComponent(s.n)}&coordinate=gaode&callnative=1`;
-infoWindow.setContent(`<div style="padding:10px 14px;min-width:160px"><div style="font-weight:700;font-size:15px">${s.n}</div>${s.desc?`<div style="color:#86868B;font-size:12px;margin:4px 0 8px">${s.desc}</div>`:''}<a href="${amapUrl}" target="_blank" style="display:inline-block;padding:4px 12px;border-radius:14px;background:${R.color};color:#fff;font-size:12px;font-weight:600;text-decoration:none"> 导航到此</a></div>`);
-infoWindow.open(map,pos);
+var R=ROUTES[id];
+R.days_data.forEach(function(day){
+renderSegment(day.stops,day.d,R.color,R.tag,0);
 });
-map.add(marker);markers.push(marker);
-});
-});
-
-// Draw polylines for each day
-R.days_data.forEach(day=>{
-const dayCoords=day.stops.map(s=>[s.lon,s.lat]);
-if(dayCoords.length>1){
-const pl=new AMap.Polyline({path:dayCoords,strokeColor:R.color,strokeWeight:4,strokeOpacity:0.6,lineJoin:"round",lineCap:"round",showDir:true});
-map.add(pl);polyline=pl;
-}
-});
-map.setFitView(null,false,[60,60,60,60],9);
-
-// Render content
+setTimeout(function(){map.setFitView(null,false,[60,60,60,60],9);},800);
 renderContent(R);
 }
 
+/* ====== 行程卡片 ====== */
 function renderContent(R){
-const c=document.getElementById('content');
-const tagClass=R.color==='#0066CC'?'tag-a':'tag-b';
-let h=`<div class="route-banner fade-in">
-<span class="tag ${tagClass}">${R.tag}</span>
-<h1>${R.name}</h1>
-<p class="sub">${R.days}天环游西藏，涵盖林芝、圣湖、冰川、草原</p>
-<div class="stats">
-<div class="stat"><div class="stat-label">行程天数</div><div class="stat-value">${R.days}天</div></div>
-<div class="stat"><div class="stat-label">总里程</div><div class="stat-value">${R.totalKm}km</div></div>
-<div class="stat"><div class="stat-label">总车程</div><div class="stat-value">${R.totalH}h</div></div>
-</div></div>`;
-
-h+=`<div class="section-title">📋 每日行程</div>`;
-R.days_data.forEach((day,di)=>{
-const firstStop=day.stops[0];
-const navUrl=`https://uri.amap.com/marker?position=${firstStop.lon},${firstStop.lat}&name=${encodeURIComponent(firstStop.n)}&coordinate=gaode&callnative=1`;
-
-h+=`<div class="day-card">`;
-h+=`<div class="day-marker"><div class="day-num" style="background:${R.color}">${day.d}</div><div class="day-line" style="background:${R.color}"></div></div>`;
-h+=`<div class="day-body" style="color:${R.color}" onclick="highlightDay(this,${di})">`;
-
-// Stops row
-h+=`<div class="stops-row">`;
-day.stops.forEach((s,si)=>{
-if(si>0) h+=`<span class="stop-arrow">→</span>`;
-h+=`<span class="stop-dot" style="background:${R.color}"></span>`;
-h+=`<span class="stop-name">${s.n}</span>`;
-if(s.desc) h+=`<span class="stop-desc">${s.desc}</span>`;
+var c=document.getElementById('content');
+var tc=R.color==='#0066CC'?'tag-a':'tag-b';
+var h='<div class="route-banner fade-in"><span class="tag '+tc+'">'+R.tag+'</span><h1>'+R.name+'</h1><p class="sub">'+R.days+'天环游西藏，涵盖林芝、圣湖、冰川、草原</p><div class="stats"><div class="stat"><div class="stat-label">行程天数</div><div class="stat-value">'+R.days+'天</div></div><div class="stat"><div class="stat-label">总里程</div><div class="stat-value">'+R.totalKm+'km</div></div><div class="stat"><div class="stat-label">总车程</div><div class="stat-value">'+R.totalH+'h</div></div></div></div>';
+h+='<div class="section-title">📋 每日行程</div>';
+R.days_data.forEach(function(day,di){
+var fs=day.stops[0];
+var nu='https://uri.amap.com/marker?position='+fs.lon+','+fs.lat+'&name='+encodeURIComponent(fs.n)+'&coordinate=gaode&callnative=1';
+h+='<div class="day-card"><div class="day-marker"><div class="day-num" style="background:'+R.color+'">'+day.d+'</div><div class="day-line" style="background:'+R.color+'"></div></div>';
+h+='<div class="day-body" style="color:'+R.color+'" onclick="highlightDay(this,\''+R.tag+'\','+di+')">';
+h+='<div class="stops-row">';
+day.stops.forEach(function(s,si){
+if(si>0)h+='<span class="stop-arrow">→</span>';
+h+='<span class="stop-dot" style="background:'+R.color+'"></span>';
+h+='<span class="stop-name">'+day.d+'·'+s.n+'</span>';
+if(s.desc)h+='<span class="stop-desc">'+s.desc+'</span>';
 });
-h+=`</div>`;
-
-// Meta row
-h+=`<div class="meta-row">`;
-h+=`<div class="meta">📏 车程 <span class="val">${day.dist}</span></div>`;
-h+=`<div class="meta">⏱ 时长 <span class="val">${day.time}</span></div>`;
-h+=`<div class="meta">🏔 海拔 <span class="val">${day.alt}</span></div>`;
-h+=`</div>`;
-
-h+=`<a href="${navUrl}" target="_blank" class="nav-link">📍 导航到起点</a>`;
-h+=`<button class="detail-toggle" onclick="event.stopPropagation();toggleDetail(this)">📖 攻略 ▾</button>`;
-
-// Detail panel
-h+=`<div class="detail-panel">`;
-day.stops.forEach(s=>{
-h+=`<div class="detail-item"><div class="detail-item-title">📍 ${s.n}</div>`;
-if(s.desc) h+=`<div class="detail-item-text">${s.desc}</div>`;
-h+=`</div>`;
+h+='</div>';
+h+='<div class="meta-row"><div class="meta">📏 车程 <span class="val">'+day.dist+'</span></div><div class="meta">⏱ 时长 <span class="val">'+day.time+'</span></div><div class="meta">🏔 海拔 <span class="val">'+day.alt+'</span></div></div>';
+h+='<a href="'+nu+'" target="_blank" class="nav-link">📍 导航到起点</a>';
+h+='<button class="detail-toggle" onclick="event.stopPropagation();toggleDetail(this)">📖 攻略 ▾</button>';
+h+='<div class="detail-panel">';
+day.stops.forEach(function(s){
+h+='<div class="detail-item"><div class="detail-item-title">📍 '+s.n+'</div>';
+if(s.desc)h+='<div class="detail-item-text">'+s.desc+'</div>';
+h+='</div>';
 });
-h+=`</div>`;
-
-h+=`</div></div>`;
+h+='</div></div></div>';
 });
-
 c.innerHTML=h;
 }
 
 function toggleDetail(btn){
-const panel=btn.nextElementSibling;
-const isOpen=panel.classList.contains('open');
-document.querySelectorAll('.detail-panel.open').forEach(p=>{p.classList.remove('open');});
+var panel=btn.nextElementSibling;
+var isOpen=panel.classList.contains('open');
+document.querySelectorAll('.detail-panel.open').forEach(function(p){p.classList.remove('open');});
+document.querySelectorAll('.detail-toggle').forEach(function(b){b.textContent='📖 攻略 ▾';});
 if(!isOpen){panel.classList.add('open');btn.textContent='📖 收起 ▴';}
 }
 
-function highlightDay(el,idx){
-document.querySelectorAll('.day-body').forEach(c=>c.classList.remove('highlighted'));
+function highlightDay(el,routeTag,idx){
+document.querySelectorAll('.day-body').forEach(function(c){c.classList.remove('highlighted');});
 el.classList.add('highlighted');
-const R=ROUTES[currentRoute];
-const day=R.days_data[idx];
+var R=ROUTES[routeTag==='A线'?'A':'B'];
+var day=R.days_data[idx];
 if(day&&day.stops.length){
-const mid=Math.floor(day.stops.length/2);
-const s=day.stops[mid];
+var mid=Math.floor(day.stops.length/2);
+var s=day.stops[mid];
 map.setCenter([s.lon,s.lat]);
 map.setZoom(8);
 }
